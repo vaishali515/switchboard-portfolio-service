@@ -26,6 +26,7 @@ public class AchievementController {
     private final AchievementService achievementService;
     private final PortfolioService portfolioService;
 
+
     
     @GetMapping("/all")
     public ResponseEntity<List<AchievementDTO>> getAllAchievements(@PathVariable Long portfolioId) {
