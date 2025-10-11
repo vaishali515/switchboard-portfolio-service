@@ -38,6 +38,7 @@ public class AchievementController {
     public ResponseEntity<AchievementDTO> getAchievementById(@PathVariable Long id) {
         AchievementDTO achievement = achievementService.getAchievementById(id);
         return ResponseEntity.ok(achievement);
+
     }
 
     @PostMapping
