@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
+import java.util.UUID;
 
 public interface AchievementService {
     
@@ -16,25 +17,25 @@ public interface AchievementService {
     /**
      * Get all achievements for a portfolio
      */
-    List<AchievementDTO> getAllAchievementsByPortfolioId(Long portfolioId);
+    List<AchievementDTO> getAllAchievementsByPortfolioId(UUID portfolioId);
     
     /**
      * Get achievement by ID
      */
-    AchievementDTO getAchievementById(Long id);
+    AchievementDTO getAchievementById(UUID achievementId);
     
     /**
      * Create a new achievement for a portfolio
      */
-    AchievementDTO createAchievement(Long portfolioId, AchievementDTO achievementDTO);
+    AchievementDTO createAchievement(UUID portfolioId, AchievementDTO achievementDTO);
     
     /**
      * Update an existing achievement
      */
-    AchievementDTO updateAchievement(Long id, AchievementDTO achievementDTO);
+    AchievementDTO updateAchievement(UUID achievementId, AchievementDTO achievementDTO);
     
     /**
      * Delete an achievement by ID
      */
-    void deleteAchievement(Long id);
+    void deleteAchievement(UUID achievementId);
 }

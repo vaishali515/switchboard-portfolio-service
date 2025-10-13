@@ -7,6 +7,7 @@ import com.SwitchBoard.PortfolioService.Repository.EducationRepository;
 import com.SwitchBoard.PortfolioService.Repository.PortfolioRepository;
 import com.SwitchBoard.PortfolioService.Service.Portfolio.EducationService;
 import jakarta.persistence.EntityNotFoundException;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -14,33 +15,20 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
 @Transactional
+@RequiredArgsConstructor
 public class EducationServiceImpl implements EducationService {
 
     private final EducationRepository educationRepository;
     private final PortfolioRepository portfolioRepository;
 
-    public EducationServiceImpl(EducationRepository educationRepository, PortfolioRepository portfolioRepository) {
-        this.educationRepository = educationRepository;
-        this.portfolioRepository = portfolioRepository;
-    }
 
     @Override
-    public Page<EducationDTO> getEducationsByPortfolioId(Long portfolioId, Pageable pageable) {
-        // Verify portfolio exists
-        if (!portfolioRepository.existsById(portfolioId)) {
-            throw new EntityNotFoundException("Portfolio not found with id: " + portfolioId);
-        }
-        
-        return educationRepository.findByPortfolioId(portfolioId, pageable)
-                .map(this::convertToDTO);
-    }
-
-    @Override
-    public List<EducationDTO> getAllEducationsByPortfolioId(Long portfolioId) {
+    public List<EducationDTO> getAllEducationsByPortfolioId(UUID portfolioId) {
         // Verify portfolio exists
         if (!portfolioRepository.existsById(portfolioId)) {
             throw new EntityNotFoundException("Portfolio not found with id: " + portfolioId);
@@ -52,14 +40,14 @@ public class EducationServiceImpl implements EducationService {
     }
 
     @Override
-    public EducationDTO getEducationById(Long id) {
+    public EducationDTO getEducationById(UUID id) {
         return educationRepository.findById(id)
                 .map(this::convertToDTO)
                 .orElseThrow(() -> new EntityNotFoundException("Education not found with id: " + id));
     }
 
     @Override
-    public EducationDTO createEducation(Long portfolioId, EducationDTO educationDTO) {
+    public EducationDTO createEducation(UUID portfolioId, EducationDTO educationDTO) {
         Portfolio portfolio = portfolioRepository.findById(portfolioId)
                 .orElseThrow(() -> new EntityNotFoundException("Portfolio not found with id: " + portfolioId));
         
@@ -72,7 +60,7 @@ public class EducationServiceImpl implements EducationService {
     }
 
     @Override
-    public EducationDTO updateEducation(Long id, EducationDTO educationDTO) {
+    public EducationDTO updateEducation(UUID id, EducationDTO educationDTO) {
         Education education = educationRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Education not found with id: " + id));
         
@@ -107,16 +95,14 @@ public class EducationServiceImpl implements EducationService {
     }
 
     @Override
-    public void deleteEducation(Long id) {
+    public void deleteEducation(UUID id) {
         if (!educationRepository.existsById(id)) {
             throw new EntityNotFoundException("Education not found with id: " + id);
         }
         educationRepository.deleteById(id);
     }
     
-    /**
-     * Convert Education entity to DTO
-     */
+
     private EducationDTO convertToDTO(Education education) {
         EducationDTO educationDTO = new EducationDTO();
         BeanUtils.copyProperties(education, educationDTO);

@@ -1,125 +1,113 @@
 package com.SwitchBoard.PortfolioService.Controller;
 
 import com.SwitchBoard.PortfolioService.DTO.ApiResponse;
+import com.SwitchBoard.PortfolioService.DTO.CertificateDTO;
 import com.SwitchBoard.PortfolioService.DTO.PortfolioDTO;
 import com.SwitchBoard.PortfolioService.DTO.ProjectDTO;
+import com.SwitchBoard.PortfolioService.Service.Portfolio.FileService;
 import com.SwitchBoard.PortfolioService.Service.Portfolio.PortfolioService;
 import com.SwitchBoard.PortfolioService.Service.Portfolio.ProjectService;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartException;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/portfolios/{portfolioId}/projects")
-@CrossOrigin(origins = "*", allowedHeaders = "*")
+@Slf4j
+@RequiredArgsConstructor
 public class ProjectController {
 
     private final ProjectService projectService;
-    private final PortfolioService portfolioService;
+    private final FileService fileService;
 
-    public ProjectController(ProjectService projectService, PortfolioService portfolioService) {
-        this.projectService = projectService;
-        this.portfolioService = portfolioService;
-    }
 
-    @GetMapping
-    public ResponseEntity<Page<ProjectDTO>> getProjects(
-            @PathVariable Long portfolioId,
-            @PageableDefault(size = 10, sort = "name") Pageable pageable) {
-        Page<ProjectDTO> projects = projectService.getProjectsByPortfolioId(portfolioId, pageable);
-        return ResponseEntity.ok(projects);
-    }
-    
     @GetMapping("/all")
-    public ResponseEntity<List<ProjectDTO>> getAllProjects(@PathVariable Long portfolioId) {
+    public ResponseEntity<List<ProjectDTO>> getAllProjects(@PathVariable UUID portfolioId) {
         List<ProjectDTO> projects = projectService.getAllProjectsByPortfolioId(portfolioId);
         return ResponseEntity.ok(projects);
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<ProjectDTO> getProjectById(@PathVariable Long id) {
-        ProjectDTO project = projectService.getProjectById(id);
+    @GetMapping("/{projectId}")
+    public ResponseEntity<ProjectDTO> getProjectById(@PathVariable UUID projectId) {
+        ProjectDTO project = projectService.getProjectById(projectId);
         return ResponseEntity.ok(project);
     }
 
     @PostMapping
     public ResponseEntity<ProjectDTO> createProject(
-            @PathVariable Long portfolioId,
-            @Valid @RequestBody ProjectDTO projectDTO,
-            Authentication authentication) {
-        
-        // Verify the authenticated user is the owner of the portfolio
-        verifyPortfolioOwnership(portfolioId, authentication);
-        
-        ProjectDTO createdProject = projectService.createProject(portfolioId, projectDTO);
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdProject);
-    }
+            @PathVariable UUID portfolioId,
+            @Valid @RequestBody ProjectDTO projectDTO,@RequestPart(value = "image", required = false) MultipartFile image) throws IOException {
 
-    @PutMapping("/{id}")
-    public ResponseEntity<ProjectDTO> updateProject(
-            @PathVariable Long portfolioId,
-            @PathVariable Long id,
-            @Valid @RequestBody ProjectDTO projectDTO,
-            Authentication authentication) {
-        
-        // Verify the authenticated user is the owner of the portfolio
-        verifyPortfolioOwnership(portfolioId, authentication);
-        
-        ProjectDTO updatedProject = projectService.updateProject(id, projectDTO);
-        return ResponseEntity.ok(updatedProject);
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse> deleteProject(
-            @PathVariable Long portfolioId,
-            @PathVariable Long id,
-            Authentication authentication) {
-        
-        // Verify the authenticated user is the owner of the portfolio
-        verifyPortfolioOwnership(portfolioId, authentication);
-        
-        projectService.deleteProject(id);
-        return ResponseEntity.ok(new ApiResponse(true, "Project deleted successfully"));
-    }
-
-    @PostMapping(value = "/{id}/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<ApiResponse> uploadProjectImage(
-            @PathVariable Long portfolioId,
-            @PathVariable Long id,
-            @RequestParam("file") MultipartFile file,
-            Authentication authentication) {
-        
-        // Verify the authenticated user is the owner of the portfolio
-        verifyPortfolioOwnership(portfolioId, authentication);
-        
         try {
-            String imagePath = projectService.uploadProjectImage(id, file);
-            return ResponseEntity.ok(new ApiResponse(true, "Project image uploaded successfully"));
-        } catch (IOException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new ApiResponse(false, "Failed to upload project image: " + e.getMessage()));
+            if (image != null && !image.isEmpty()) {
+
+                String contentType = image.getContentType();
+                if (contentType == null || !contentType.startsWith("image/")) {
+                    return ResponseEntity.badRequest().body(null);
+                }
+
+                String imageUrl = fileService.uploadImage("portfolio-service", image);
+                projectDTO.setImageUrl(imageUrl);
+            }
+
+
+            ProjectDTO project = projectService.createProject(portfolioId,projectDTO );
+            return ResponseEntity.status(HttpStatus.CREATED).body(project);
+
+        } catch (MultipartException e) {
+            log.error("InterviewExperienceController :: createInterviewExperience :: multipart error: {}", e.getMessage());
+            throw new RuntimeException("Error processing multipart request: " + e.getMessage());
+        } catch (Exception e) {
+            log.error("InterviewExperienceController :: createInterviewExperience :: error: {}", e.getMessage());
+            throw e;
         }
     }
-    
-    /**
-     * Helper method to verify that the authenticated user is the owner of the portfolio
-     */
-    private void verifyPortfolioOwnership(Long portfolioId, Authentication authentication) {
-        PortfolioDTO portfolio = portfolioService.getPortfolioById(portfolioId);
-        Long authenticatedUserId = (Long) authentication.getPrincipal();
+
+    @ExceptionHandler(MultipartException.class)
+    public ResponseEntity<String> handleMultipartException(MultipartException e) {
+        log.error("InterviewExperienceController :: handleMultipartException :: error handling multipart request: {}", e.getMessage());
+        return ResponseEntity.badRequest().body("Error processing multipart request: Please ensure the request is properly formatted");
+    }
+
+
+    @PutMapping("/{projectId}")
+    public ResponseEntity<ProjectDTO> updateProject(
+            @PathVariable UUID portfolioId,
+            @PathVariable UUID projectId,
+            @Valid @RequestBody ProjectDTO projectDTO, @Valid @RequestBody CertificateDTO certificateDTO,@RequestPart(value = "image", required = false) MultipartFile image
+    ) throws IOException {
+        try {
+            ProjectDTO updatedProject = projectService.updateProject(projectId, projectDTO, image);
+            return ResponseEntity.ok(updatedProject);
+        }
+        catch (Exception e) {
+            log.error("CertificateController :: updateCertificate :: error :: {}", e.getMessage());
+            throw e;
+        }
+    }
+
+    @DeleteMapping("/{projectId}")
+    public ResponseEntity<ApiResponse> deleteProject(
+            @PathVariable UUID portfolioId,
+            @PathVariable UUID projectId) {
         
-        if (!authenticatedUserId.equals(portfolio.getUserId())) {
-            throw new org.springframework.security.access.AccessDeniedException("You do not have permission to modify this portfolio");
-        }
+        projectService.deleteProject(projectId);
+        return ResponseEntity.ok(ApiResponse.success("Project deleted successfully", true));
     }
+
+
+
 }

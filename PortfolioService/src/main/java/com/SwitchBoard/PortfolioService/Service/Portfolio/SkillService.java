@@ -5,41 +5,22 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
+import java.util.UUID;
 
 public interface SkillService {
     
-    /**
-     * Get all skills for a portfolio with pagination
-     */
-    Page<SkillDTO> getSkillsByPortfolioId(Long portfolioId, Pageable pageable);
+   
+    List<SkillDTO> getAllSkillsByPortfolioId(UUID portfolioId);
+
+    SkillDTO getSkillById(UUID skillId);
+
+    SkillDTO createSkill(UUID portfolioId, SkillDTO skillDTO);
     
-    /**
-     * Get all skills for a portfolio
-     */
-    List<SkillDTO> getAllSkillsByPortfolioId(Long portfolioId);
+
+    SkillDTO updateSkill(UUID skillId, SkillDTO skillDTO);
     
-    /**
-     * Get skill by ID
-     */
-    SkillDTO getSkillById(Long id);
+
+    void deleteSkill(UUID skillId);
     
-    /**
-     * Create a new skill for a portfolio
-     */
-    SkillDTO createSkill(Long portfolioId, SkillDTO skillDTO);
-    
-    /**
-     * Update an existing skill
-     */
-    SkillDTO updateSkill(Long id, SkillDTO skillDTO);
-    
-    /**
-     * Delete a skill by ID
-     */
-    void deleteSkill(Long id);
-    
-    /**
-     * Get skills by category
-     */
-    List<SkillDTO> getSkillsByCategory(Long portfolioId, String category);
+
 }

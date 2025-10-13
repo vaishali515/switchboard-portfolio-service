@@ -7,6 +7,7 @@ import com.SwitchBoard.PortfolioService.Repository.AchievementRepository;
 import com.SwitchBoard.PortfolioService.Repository.PortfolioRepository;
 import com.SwitchBoard.PortfolioService.Service.Portfolio.AchievementService;
 import jakarta.persistence.EntityNotFoundException;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -14,22 +15,21 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
 @Transactional
+@RequiredArgsConstructor
 public class AchievementServiceImpl implements AchievementService {
 
     private final AchievementRepository achievementRepository;
     private final PortfolioRepository portfolioRepository;
 
-    public AchievementServiceImpl(AchievementRepository achievementRepository, PortfolioRepository portfolioRepository) {
-        this.achievementRepository = achievementRepository;
-        this.portfolioRepository = portfolioRepository;
-    }
+
 
     @Override
-    public List<AchievementDTO> getAllAchievementsByPortfolioId(Long portfolioId) {
+    public List<AchievementDTO> getAllAchievementsByPortfolioId(UUID portfolioId) {
         // Verify portfolio exists
         if (!portfolioRepository.existsById(portfolioId)) {
             throw new EntityNotFoundException("Portfolio not found with id: " + portfolioId);
@@ -41,14 +41,14 @@ public class AchievementServiceImpl implements AchievementService {
     }
 
     @Override
-    public AchievementDTO getAchievementById(Long id) {
-        return achievementRepository.findById(id)
+    public AchievementDTO getAchievementById(UUID achievementId) {
+        return achievementRepository.findById(achievementId)
                 .map(this::convertToDTO)
-                .orElseThrow(() -> new EntityNotFoundException("Achievement not found with id: " + id));
+                .orElseThrow(() -> new EntityNotFoundException("Achievement not found with achievementId: " + achievementId));
     }
 
     @Override
-    public AchievementDTO createAchievement(Long portfolioId, AchievementDTO achievementDTO) {
+    public AchievementDTO createAchievement(UUID portfolioId, AchievementDTO achievementDTO) {
         Portfolio portfolio = portfolioRepository.findById(portfolioId)
                 .orElseThrow(() -> new EntityNotFoundException("Portfolio not found with id: " + portfolioId));
         
@@ -61,9 +61,9 @@ public class AchievementServiceImpl implements AchievementService {
     }
 
     @Override
-    public AchievementDTO updateAchievement(Long id, AchievementDTO achievementDTO) {
-        Achievement achievement = achievementRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Achievement not found with id: " + id));
+    public AchievementDTO updateAchievement(UUID achievementId, AchievementDTO achievementDTO) {
+        Achievement achievement = achievementRepository.findById(achievementId)
+                .orElseThrow(() -> new EntityNotFoundException("Achievement not found with achievementId: " + achievementId));
         
         // Update only non-null fields
         if (achievementDTO.getTitle() != null) {
@@ -87,11 +87,11 @@ public class AchievementServiceImpl implements AchievementService {
     }
 
     @Override
-    public void deleteAchievement(Long id) {
-        if (!achievementRepository.existsById(id)) {
-            throw new EntityNotFoundException("Achievement not found with id: " + id);
+    public void deleteAchievement(UUID achievementId) {
+        if (!achievementRepository.existsById(achievementId)) {
+            throw new EntityNotFoundException("Achievement not found with id: " + achievementId);
         }
-        achievementRepository.deleteById(id);
+        achievementRepository.deleteById(achievementId);
     }
     
     /**

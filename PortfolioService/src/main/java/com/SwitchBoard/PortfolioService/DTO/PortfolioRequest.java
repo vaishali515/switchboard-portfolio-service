@@ -7,6 +7,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -19,6 +21,6 @@ public class PortfolioRequest {
 
     private String bio;
     private String profileImageUrl;
-    private String socialLinks;
+    private List<String> socialLinks;
     private String overview;
 }

@@ -9,12 +9,13 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class SkillDTO {
-    private Long id;
+    private UUID id;
     @NotBlank(message = "Skill name is required")
     private String name;
     private String category;

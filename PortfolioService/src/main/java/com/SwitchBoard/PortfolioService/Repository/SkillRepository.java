@@ -7,10 +7,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.UUID;
 
 @Repository
-public interface SkillRepository extends JpaRepository<Skill, Long> {
-    List<Skill> findByPortfolioId(Long portfolioId);
-    Page<Skill> findByPortfolioId(Long portfolioId, Pageable pageable);
-    List<Skill> findByPortfolioIdAndCategory(Long portfolioId, String category);
+public interface SkillRepository extends JpaRepository<Skill, UUID> {
+    List<Skill> findByPortfolioId(UUID portfolioId);
+    List<Skill> findByPortfolioIdAndCategory(UUID portfolioId, String category);
 }

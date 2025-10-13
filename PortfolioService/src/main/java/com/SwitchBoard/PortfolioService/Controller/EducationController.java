@@ -6,98 +6,78 @@ import com.SwitchBoard.PortfolioService.DTO.PortfolioDTO;
 import com.SwitchBoard.PortfolioService.Service.Portfolio.EducationService;
 import com.SwitchBoard.PortfolioService.Service.Portfolio.PortfolioService;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
+@RequiredArgsConstructor
+@Slf4j
 @RequestMapping("/api/portfolios/{portfolioId}/education")
-@CrossOrigin(origins = "*", allowedHeaders = "*")
 public class EducationController {
 
     private final EducationService educationService;
-    private final PortfolioService portfolioService;
 
-    public EducationController(EducationService educationService, PortfolioService portfolioService) {
-        this.educationService = educationService;
-        this.portfolioService = portfolioService;
-    }
+
 
     @GetMapping
-    public ResponseEntity<Page<EducationDTO>> getEducations(
-            @PathVariable Long portfolioId,
-            @PageableDefault(size = 10, sort = "startDate") Pageable pageable) {
-        Page<EducationDTO> educations = educationService.getEducationsByPortfolioId(portfolioId, pageable);
-        return ResponseEntity.ok(educations);
-    }
-    
-    @GetMapping("/all")
-    public ResponseEntity<List<EducationDTO>> getAllEducations(@PathVariable Long portfolioId) {
+    public ResponseEntity<List<EducationDTO>> getAllEducations(@PathVariable UUID portfolioId) {
+        log.info("Fetching all education records for portfolioId: {}", portfolioId);
         List<EducationDTO> educations = educationService.getAllEducationsByPortfolioId(portfolioId);
         return ResponseEntity.ok(educations);
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<EducationDTO> getEducationById(@PathVariable Long id) {
-        EducationDTO education = educationService.getEducationById(id);
+    @GetMapping("/{educationId}")
+    public ResponseEntity<EducationDTO> getEducationById(@PathVariable UUID educationId) {
+        log.info("Fetching education entry with ID: {}", educationId);
+        EducationDTO education = educationService.getEducationById(educationId);
         return ResponseEntity.ok(education);
     }
 
+
     @PostMapping
     public ResponseEntity<EducationDTO> createEducation(
-            @PathVariable Long portfolioId,
-            @Valid @RequestBody EducationDTO educationDTO,
-            Authentication authentication) {
-        
-        // Verify the authenticated user is the owner of the portfolio
-        verifyPortfolioOwnership(portfolioId, authentication);
-        
+            @PathVariable UUID portfolioId,
+            @Valid @RequestBody EducationDTO educationDTO) {
+
+
         EducationDTO createdEducation = educationService.createEducation(portfolioId, educationDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdEducation);
     }
 
-    @PutMapping("/{id}")
+    /**
+     * Update an existing education entry
+     */
+    @PutMapping("/{educationId}")
     public ResponseEntity<EducationDTO> updateEducation(
-            @PathVariable Long portfolioId,
-            @PathVariable Long id,
-            @Valid @RequestBody EducationDTO educationDTO,
-            Authentication authentication) {
-        
-        // Verify the authenticated user is the owner of the portfolio
-        verifyPortfolioOwnership(portfolioId, authentication);
-        
-        EducationDTO updatedEducation = educationService.updateEducation(id, educationDTO);
+            @PathVariable UUID portfolioId,
+            @PathVariable UUID educationId,
+            @Valid @RequestBody EducationDTO educationDTO) {
+
+
+        EducationDTO updatedEducation = educationService.updateEducation(educationId, educationDTO);
         return ResponseEntity.ok(updatedEducation);
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse> deleteEducation(
-            @PathVariable Long portfolioId,
-            @PathVariable Long id,
-            Authentication authentication) {
-        
-        // Verify the authenticated user is the owner of the portfolio
-        verifyPortfolioOwnership(portfolioId, authentication);
-        
-        educationService.deleteEducation(id);
-        return ResponseEntity.ok(new ApiResponse(true, "Education entry deleted successfully"));
-    }
-    
     /**
-     * Helper method to verify that the authenticated user is the owner of the portfolio
+     * Delete an education entry by ID
      */
-    private void verifyPortfolioOwnership(Long portfolioId, Authentication authentication) {
-        PortfolioDTO portfolio = portfolioService.getPortfolioById(portfolioId);
-        Long authenticatedUserId = (Long) authentication.getPrincipal();
-        
-        if (!authenticatedUserId.equals(portfolio.getUserId())) {
-            throw new org.springframework.security.access.AccessDeniedException("You do not have permission to modify this portfolio");
-        }
+    @DeleteMapping("/{educationId}")
+    public ResponseEntity<ApiResponse> deleteEducation(
+            @PathVariable UUID portfolioId,
+            @PathVariable UUID educationId) {
+
+
+        educationService.deleteEducation(educationId);
+        return ResponseEntity.ok(ApiResponse.success("Education entry deleted successfully", true));
     }
+
 }

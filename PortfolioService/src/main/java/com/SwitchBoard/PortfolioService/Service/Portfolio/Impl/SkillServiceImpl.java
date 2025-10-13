@@ -7,6 +7,7 @@ import com.SwitchBoard.PortfolioService.Repository.PortfolioRepository;
 import com.SwitchBoard.PortfolioService.Repository.SkillRepository;
 import com.SwitchBoard.PortfolioService.Service.Portfolio.SkillService;
 import jakarta.persistence.EntityNotFoundException;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -14,33 +15,20 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
 @Transactional
+@RequiredArgsConstructor
 public class SkillServiceImpl implements SkillService {
 
     private final SkillRepository skillRepository;
     private final PortfolioRepository portfolioRepository;
 
-    public SkillServiceImpl(SkillRepository skillRepository, PortfolioRepository portfolioRepository) {
-        this.skillRepository = skillRepository;
-        this.portfolioRepository = portfolioRepository;
-    }
-
+    
     @Override
-    public Page<SkillDTO> getSkillsByPortfolioId(Long portfolioId, Pageable pageable) {
-        // Verify portfolio exists
-        if (!portfolioRepository.existsById(portfolioId)) {
-            throw new EntityNotFoundException("Portfolio not found with id: " + portfolioId);
-        }
-        
-        return skillRepository.findByPortfolioId(portfolioId, pageable)
-                .map(this::convertToDTO);
-    }
-
-    @Override
-    public List<SkillDTO> getAllSkillsByPortfolioId(Long portfolioId) {
+    public List<SkillDTO> getAllSkillsByPortfolioId(UUID portfolioId) {
         // Verify portfolio exists
         if (!portfolioRepository.existsById(portfolioId)) {
             throw new EntityNotFoundException("Portfolio not found with id: " + portfolioId);
@@ -52,14 +40,14 @@ public class SkillServiceImpl implements SkillService {
     }
 
     @Override
-    public SkillDTO getSkillById(Long id) {
+    public SkillDTO getSkillById(UUID id) {
         return skillRepository.findById(id)
                 .map(this::convertToDTO)
                 .orElseThrow(() -> new EntityNotFoundException("Skill not found with id: " + id));
     }
 
     @Override
-    public SkillDTO createSkill(Long portfolioId, SkillDTO skillDTO) {
+    public SkillDTO createSkill(UUID portfolioId, SkillDTO skillDTO) {
         Portfolio portfolio = portfolioRepository.findById(portfolioId)
                 .orElseThrow(() -> new EntityNotFoundException("Portfolio not found with id: " + portfolioId));
         
@@ -72,9 +60,9 @@ public class SkillServiceImpl implements SkillService {
     }
 
     @Override
-    public SkillDTO updateSkill(Long id, SkillDTO skillDTO) {
-        Skill skill = skillRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Skill not found with id: " + id));
+    public SkillDTO updateSkill(UUID skillId, SkillDTO skillDTO) {
+        Skill skill = skillRepository.findById(skillId)
+                .orElseThrow(() -> new EntityNotFoundException("Skill not found with id: " + skillId));
         
         // Update only non-null fields
         if (skillDTO.getName() != null) {
@@ -83,9 +71,9 @@ public class SkillServiceImpl implements SkillService {
         if (skillDTO.getCategory() != null) {
             skill.setCategory(skillDTO.getCategory());
         }
-        if (skillDTO.getProficiencyLevel() != null) {
-            skill.setProficiencyLevel(skillDTO.getProficiencyLevel());
-        }
+//        if (skillDTO.getProficiencyLevel() != null) {
+//            skill.setProficiencyLevel(skillDTO.getProficiencyLevel());
+//        }
         if (skillDTO.getDescription() != null) {
             skill.setDescription(skillDTO.getDescription());
         }
@@ -95,28 +83,28 @@ public class SkillServiceImpl implements SkillService {
     }
 
     @Override
-    public void deleteSkill(Long id) {
-        if (!skillRepository.existsById(id)) {
-            throw new EntityNotFoundException("Skill not found with id: " + id);
+    public void deleteSkill(UUID skillId) {
+        if (!skillRepository.existsById(skillId)) {
+            throw new EntityNotFoundException("Skill not found with id: " + skillId);
         }
-        skillRepository.deleteById(id);
+        skillRepository.deleteById(skillId);
     }
 
-    @Override
-    public List<SkillDTO> getSkillsByCategory(Long portfolioId, String category) {
-        // Verify portfolio exists
-        if (!portfolioRepository.existsById(portfolioId)) {
-            throw new EntityNotFoundException("Portfolio not found with id: " + portfolioId);
-        }
-        
-        return skillRepository.findByPortfolioIdAndCategory(portfolioId, category).stream()
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
-    }
-    
-    /**
-     * Convert Skill entity to DTO
-     */
+//    @Override
+//    public List<SkillDTO> getSkillsByCategory(UUID portfolioId, String category) {
+//        // Verify portfolio exists
+//        if (!portfolioRepository.existsById(portfolioId)) {
+//            throw new EntityNotFoundException("Portfolio not found with id: " + portfolioId);
+//        }
+//
+//        return skillRepository.findByPortfolioIdAndCategory(portfolioId, category).stream()
+//                .map(this::convertToDTO)
+//                .collect(Collectors.toList());
+//    }
+//
+//    /**
+//     * Convert Skill entity to DTO
+//     */
     private SkillDTO convertToDTO(Skill skill) {
         SkillDTO skillDTO = new SkillDTO();
         BeanUtils.copyProperties(skill, skillDTO);

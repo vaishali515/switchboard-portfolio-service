@@ -7,41 +7,23 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.UUID;
 
 public interface ProjectService {
     
-    /**
-     * Get all projects for a portfolio with pagination
-     */
-    Page<ProjectDTO> getProjectsByPortfolioId(Long portfolioId, Pageable pageable);
     
-    /**
-     * Get all projects for a portfolio
-     */
-    List<ProjectDTO> getAllProjectsByPortfolioId(Long portfolioId);
+    List<ProjectDTO> getAllProjectsByPortfolioId(UUID portfolioId);
+   
+    ProjectDTO getProjectById(UUID projectId);
     
-    /**
-     * Get project by ID
-     */
-    ProjectDTO getProjectById(Long id);
     
-    /**
-     * Create a new project for a portfolio
-     */
-    ProjectDTO createProject(Long portfolioId, ProjectDTO projectDTO);
+    ProjectDTO createProject(UUID portfolioId, ProjectDTO projectDTO);
     
-    /**
-     * Update an existing project
-     */
-    ProjectDTO updateProject(Long id, ProjectDTO projectDTO);
     
-    /**
-     * Delete a project by ID
-     */
-    void deleteProject(Long id);
+    ProjectDTO updateProject(UUID projectId, ProjectDTO projectDTO, MultipartFile newImage) throws IOException;
     
-    /**
-     * Upload a project image
-     */
-    String uploadProjectImage(Long projectId, MultipartFile file) throws IOException;
+   
+    void deleteProject(UUID projectId);
+    
+//    String uploadProjectImage(UUID projectId, MultipartFile file) throws IOException;
 }

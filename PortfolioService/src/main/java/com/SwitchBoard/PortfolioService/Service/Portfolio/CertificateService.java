@@ -7,41 +7,38 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.UUID;
 
 public interface CertificateService {
     
-    /**
-     * Get all certificates for a portfolio with pagination
-     */
-    Page<CertificateDTO> getCertificatesByPortfolioId(Long portfolioId, Pageable pageable);
-    
+
     /**
      * Get all certificates for a portfolio
      */
-    List<CertificateDTO> getAllCertificatesByPortfolioId(Long portfolioId);
+    List<CertificateDTO> getAllCertificatesByPortfolioId(UUID portfolioId);
     
     /**
      * Get certificate by ID
      */
-    CertificateDTO getCertificateById(Long id);
+    CertificateDTO getCertificateById(UUID id);
     
     /**
      * Create a new certificate for a portfolio
      */
-    CertificateDTO createCertificate(Long portfolioId, CertificateDTO certificateDTO);
+    CertificateDTO createCertificate(UUID portfolioId, CertificateDTO certificateDTO);
     
     /**
      * Update an existing certificate
      */
-    CertificateDTO updateCertificate(Long id, CertificateDTO certificateDTO);
+    CertificateDTO updateCertificate(UUID id, CertificateDTO certificateDTO, MultipartFile newImage) throws IOException;
     
     /**
      * Delete a certificate by ID
      */
-    void deleteCertificate(Long id);
+    void deleteCertificate(UUID id);
     
     /**
      * Upload a certificate image
      */
-    String uploadCertificateImage(Long certificateId, MultipartFile file) throws IOException;
+//    String uploadCertificateImage(UUID certificateId, MultipartFile file) throws IOException;
 }
