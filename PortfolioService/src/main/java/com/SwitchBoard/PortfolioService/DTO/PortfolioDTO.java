@@ -10,12 +10,13 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class PortfolioDTO {
-    private Long id;
+    private UUID id;
 
     @NotNull(message = "Email ID is required")
     private Long emailId;
@@ -24,8 +25,10 @@ public class PortfolioDTO {
     private String fullName;
 
     private String bio;
+
     private String profileImageUrl;
-    private String socialLinks;
+
+    private List<String> socialLinks;
     private String overview;
 
     private List<SkillDTO> skills = new ArrayList<>();

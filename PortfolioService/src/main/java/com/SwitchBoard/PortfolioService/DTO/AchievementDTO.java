@@ -7,12 +7,13 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class AchievementDTO {
-    private Long id;
+    private UUID id;
 
     @NotBlank(message = "Achievement title is required")
     private String title;

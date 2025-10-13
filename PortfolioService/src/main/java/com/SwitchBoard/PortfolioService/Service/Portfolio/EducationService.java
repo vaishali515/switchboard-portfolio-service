@@ -5,36 +5,20 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
+import java.util.UUID;
 
 public interface EducationService {
+   
+    List<EducationDTO> getAllEducationsByPortfolioId(UUID portfolioId);
     
-    /**
-     * Get all education entries for a portfolio with pagination
-     */
-    Page<EducationDTO> getEducationsByPortfolioId(Long portfolioId, Pageable pageable);
     
-    /**
-     * Get all education entries for a portfolio
-     */
-    List<EducationDTO> getAllEducationsByPortfolioId(Long portfolioId);
+    EducationDTO getEducationById(UUID educationId);
     
-    /**
-     * Get education by ID
-     */
-    EducationDTO getEducationById(Long id);
+    EducationDTO createEducation(UUID portfolioId, EducationDTO educationDTO);
     
-    /**
-     * Create a new education entry for a portfolio
-     */
-    EducationDTO createEducation(Long portfolioId, EducationDTO educationDTO);
     
-    /**
-     * Update an existing education entry
-     */
-    EducationDTO updateEducation(Long id, EducationDTO educationDTO);
+    EducationDTO updateEducation(UUID educationId, EducationDTO educationDTO);
     
-    /**
-     * Delete an education entry by ID
-     */
-    void deleteEducation(Long id);
+    
+    void deleteEducation(UUID educationIdUUID);
 }

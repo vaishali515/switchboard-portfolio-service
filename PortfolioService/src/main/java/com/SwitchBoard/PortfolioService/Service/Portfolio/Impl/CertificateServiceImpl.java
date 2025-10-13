@@ -7,8 +7,11 @@ import com.SwitchBoard.PortfolioService.Entity.Portfolio;
 import com.SwitchBoard.PortfolioService.Repository.CertificateRepository;
 import com.SwitchBoard.PortfolioService.Repository.PortfolioRepository;
 import com.SwitchBoard.PortfolioService.Service.Portfolio.CertificateService;
+import com.SwitchBoard.PortfolioService.Service.Portfolio.FileService;
 import com.SwitchBoard.PortfolioService.Util.FileUploadUtil;
 import jakarta.persistence.EntityNotFoundException;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -18,35 +21,23 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
 @Transactional
+@RequiredArgsConstructor
+@Slf4j
 public class CertificateServiceImpl implements CertificateService {
 
     private final CertificateRepository certificateRepository;
     private final PortfolioRepository portfolioRepository;
     private final FileUploadUtil fileUploadUtil;
+    private final FileService fileService;
 
-    public CertificateServiceImpl(CertificateRepository certificateRepository, PortfolioRepository portfolioRepository, FileUploadUtil fileUploadUtil) {
-        this.certificateRepository = certificateRepository;
-        this.portfolioRepository = portfolioRepository;
-        this.fileUploadUtil = fileUploadUtil;
-    }
 
     @Override
-    public Page<CertificateDTO> getCertificatesByPortfolioId(Long portfolioId, Pageable pageable) {
-        // Verify portfolio exists
-        if (!portfolioRepository.existsById(portfolioId)) {
-            throw new EntityNotFoundException("Portfolio not found with id: " + portfolioId);
-        }
-        
-        return certificateRepository.findByPortfolioId(portfolioId, pageable)
-                .map(this::convertToDTO);
-    }
-
-    @Override
-    public List<CertificateDTO> getAllCertificatesByPortfolioId(Long portfolioId) {
+    public List<CertificateDTO> getAllCertificatesByPortfolioId(UUID portfolioId) {
         // Verify portfolio exists
         if (!portfolioRepository.existsById(portfolioId)) {
             throw new EntityNotFoundException("Portfolio not found with id: " + portfolioId);
@@ -58,14 +49,14 @@ public class CertificateServiceImpl implements CertificateService {
     }
 
     @Override
-    public CertificateDTO getCertificateById(Long id) {
+    public CertificateDTO getCertificateById(UUID id) {
         return certificateRepository.findById(id)
                 .map(this::convertToDTO)
                 .orElseThrow(() -> new EntityNotFoundException("Certificate not found with id: " + id));
     }
 
     @Override
-    public CertificateDTO createCertificate(Long portfolioId, CertificateDTO certificateDTO) {
+    public CertificateDTO createCertificate(UUID portfolioId, CertificateDTO certificateDTO) {
         Portfolio portfolio = portfolioRepository.findById(portfolioId)
                 .orElseThrow(() -> new EntityNotFoundException("Portfolio not found with id: " + portfolioId));
         
@@ -78,10 +69,28 @@ public class CertificateServiceImpl implements CertificateService {
     }
 
     @Override
-    public CertificateDTO updateCertificate(Long id, CertificateDTO certificateDTO) {
+    public CertificateDTO updateCertificate(UUID id, CertificateDTO certificateDTO, MultipartFile newImage) throws IOException {
         Certificate certificate = certificateRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Certificate not found with id: " + id));
-        
+
+
+        // Handle new image upload
+        if (newImage != null && !newImage.isEmpty()) {
+            // Delete old image from S3 if exists
+            if (certificate.getCertificateImageUrl() != null && !certificate.getCertificateImageUrl().isEmpty()) {
+                log.info("InterviewExperienceServiceImpl :: deleting old image from S3: {}", certificate.getCertificateImageUrl());
+                fileService.deleteImage(certificate.getCertificateImageUrl());
+            }
+
+            // Upload new image
+            String newImageUrl = fileService.uploadImage("portfolio-service", newImage);
+            log.info( "InterviewExperienceServiceImpl :: uploaded new image to S3: {}", newImageUrl);
+            certificateDTO.setCertificateImageUrl(newImageUrl);
+        } else {
+            // Keep old image if no new image uploaded
+            certificateDTO.setCertificateImageUrl(certificate.getCertificateImageUrl());
+        }
+
         // Update only non-null fields
         if (certificateDTO.getTitle() != null) {
             certificate.setTitle(certificateDTO.getTitle());
@@ -104,40 +113,41 @@ public class CertificateServiceImpl implements CertificateService {
         if (certificateDTO.getDescription() != null) {
             certificate.setDescription(certificateDTO.getDescription());
         }
+
+        certificate.setCertificateImageUrl(certificateDTO.getCertificateImageUrl());
+
         
         Certificate updatedCertificate = certificateRepository.save(certificate);
         return convertToDTO(updatedCertificate);
     }
 
-    @Override
-    public void deleteCertificate(Long id) {
-        if (!certificateRepository.existsById(id)) {
-            throw new EntityNotFoundException("Certificate not found with id: " + id);
-        }
-        certificateRepository.deleteById(id);
-    }
+
 
     @Override
-    public String uploadCertificateImage(Long certificateId, MultipartFile file) throws IOException {
-        Certificate certificate = certificateRepository.findById(certificateId)
-                .orElseThrow(() -> new EntityNotFoundException("Certificate not found with id: " + certificateId));
+    public void deleteCertificate(UUID id) {
+        Certificate certificate = certificateRepository.findById(id)
+                .orElseThrow(() -> {
+                    return new RuntimeException("Certificate not found");
+                });
 
-        // Delete old image if exists
+        // Delete image from S3 if exists
         if (certificate.getCertificateImageUrl() != null && !certificate.getCertificateImageUrl().isEmpty()) {
-            fileUploadUtil.deleteFile(certificate.getCertificateImageUrl());
+            try {
+                log.info("InterviewExperienceServiceImpl :: deleting image from S3: {}", certificate.getCertificateImageUrl());
+                fileService.deleteImage(certificate.getCertificateImageUrl());
+                log.info("InterviewExperienceServiceImpl :: deleted image from S3: {}", certificate.getCertificateImageUrl());
+            } catch (Exception e) {
+                log.error("InterviewExperienceServiceImpl :: failed to delete image from S3: {}", e.getMessage());
+                // Optional: you can throw exception if you want to fail delete if image deletion fails
+            }
         }
 
-        // Upload new image
-        String imagePath = fileUploadUtil.saveFile(file, "certificate-images");
-
-        // Update certificate with new image path
-        certificate.setCertificateImageUrl(imagePath);
-        certificateRepository.save(certificate);
-
-        return imagePath;
+        // Delete DB record
+        certificateRepository.delete(certificate);
+        log.info("InterviewExperienceServiceImpl :: deleteInterviewExperience :: deleted DB record with id: {}", id);
 
     }
-    
+
     /**
      * Convert Certificate entity to DTO
      */

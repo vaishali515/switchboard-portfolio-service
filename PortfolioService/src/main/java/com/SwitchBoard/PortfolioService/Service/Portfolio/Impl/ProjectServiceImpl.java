@@ -1,13 +1,17 @@
 package com.SwitchBoard.PortfolioService.Service.Portfolio.Impl;
 
+import com.SwitchBoard.PortfolioService.DTO.CertificateDTO;
 import com.SwitchBoard.PortfolioService.DTO.ProjectDTO;
+import com.SwitchBoard.PortfolioService.Entity.Certificate;
 import com.SwitchBoard.PortfolioService.Entity.Portfolio;
 import com.SwitchBoard.PortfolioService.Entity.Project;
 import com.SwitchBoard.PortfolioService.Repository.PortfolioRepository;
 import com.SwitchBoard.PortfolioService.Repository.ProjectRepository;
+import com.SwitchBoard.PortfolioService.Service.Portfolio.FileService;
 import com.SwitchBoard.PortfolioService.Service.Portfolio.ProjectService;
 import com.SwitchBoard.PortfolioService.Util.FileUploadUtil;
 import jakarta.persistence.EntityNotFoundException;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -17,35 +21,20 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
 @Transactional
+@RequiredArgsConstructor
 public class ProjectServiceImpl implements ProjectService {
 
     private final ProjectRepository projectRepository;
     private final PortfolioRepository portfolioRepository;
-    private final FileUploadUtil fileUploadUtil;
-
-    public ProjectServiceImpl(ProjectRepository projectRepository, PortfolioRepository portfolioRepository, FileUploadUtil fileUploadUtil) {
-        this.projectRepository = projectRepository;
-        this.portfolioRepository = portfolioRepository;
-        this.fileUploadUtil = fileUploadUtil;
-    }
+    private final FileService fileService;
 
     @Override
-    public Page<ProjectDTO> getProjectsByPortfolioId(Long portfolioId, Pageable pageable) {
-        // Verify portfolio exists
-        if (!portfolioRepository.existsById(portfolioId)) {
-            throw new EntityNotFoundException("Portfolio not found with id: " + portfolioId);
-        }
-        
-        return projectRepository.findByPortfolioId(portfolioId, pageable)
-                .map(this::convertToDTO);
-    }
-
-    @Override
-    public List<ProjectDTO> getAllProjectsByPortfolioId(Long portfolioId) {
+    public List<ProjectDTO> getAllProjectsByPortfolioId(UUID portfolioId) {
         // Verify portfolio exists
         if (!portfolioRepository.existsById(portfolioId)) {
             throw new EntityNotFoundException("Portfolio not found with id: " + portfolioId);
@@ -57,14 +46,14 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
-    public ProjectDTO getProjectById(Long id) {
-        return projectRepository.findById(id)
+    public ProjectDTO getProjectById(UUID projectId) {
+        return projectRepository.findById(projectId)
                 .map(this::convertToDTO)
-                .orElseThrow(() -> new EntityNotFoundException("Project not found with id: " + id));
+                .orElseThrow(() -> new EntityNotFoundException("Project not found with id: " + projectId));
     }
 
     @Override
-    public ProjectDTO createProject(Long portfolioId, ProjectDTO projectDTO) {
+    public ProjectDTO createProject(UUID portfolioId, ProjectDTO projectDTO) {
         Portfolio portfolio = portfolioRepository.findById(portfolioId)
                 .orElseThrow(() -> new EntityNotFoundException("Portfolio not found with id: " + portfolioId));
         
@@ -77,9 +66,24 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
-    public ProjectDTO updateProject(Long id, ProjectDTO projectDTO) {
-        Project project = projectRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Project not found with id: " + id));
+    public ProjectDTO updateProject(UUID projectId, ProjectDTO projectDTO, MultipartFile newImage) throws IOException {
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new EntityNotFoundException("Project not found with id: " + projectId));
+
+        // Handle new image upload
+        if (newImage != null && !newImage.isEmpty()) {
+            // Delete old image from S3 if exists
+            if (project.getImageUrl() != null && !project.getImageUrl().isEmpty()) {
+                fileService.deleteImage(project.getImageUrl());
+            }
+
+            // Upload new image
+            String newImageUrl = fileService.uploadImage("portfolio-service", newImage);
+            projectDTO.setImageUrl(newImageUrl);
+        } else {
+            // Keep old image if no new image uploaded
+            projectDTO.setImageUrl(project.getImageUrl());
+        }
         
         // Update only non-null fields
         if (projectDTO.getName() != null) {
@@ -103,39 +107,34 @@ public class ProjectServiceImpl implements ProjectService {
         if (projectDTO.getOngoing() != null) {
             project.setOngoing(projectDTO.getOngoing());
         }
+        project.setImageUrl(projectDTO.getImageUrl());
         
         Project updatedProject = projectRepository.save(project);
         return convertToDTO(updatedProject);
     }
 
     @Override
-    public void deleteProject(Long id) {
-        if (!projectRepository.existsById(id)) {
-            throw new EntityNotFoundException("Project not found with id: " + id);
+    public void deleteProject(UUID projectId) {
+
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> {
+                    return new RuntimeException("Project not found");
+                });
+
+        // Delete image from S3 if exists
+        if (project.getImageUrl() != null && !project.getImageUrl().isEmpty()) {
+            try {
+                fileService.deleteImage(project.getImageUrl());
+            } catch (Exception e) {
+                // Optional: you can throw exception if you want to fail delete if image deletion fails
+            }
         }
-        projectRepository.deleteById(id);
+
+        // Delete DB record
+        projectRepository.delete(project);
     }
 
-    @Override
-    public String uploadProjectImage(Long projectId, MultipartFile file) throws IOException {
-        Project project = projectRepository.findById(projectId)
-                .orElseThrow(() -> new EntityNotFoundException("Project not found with id: " + projectId));
-        
-        // Delete old image if exists
-        if (project.getImageUrl() != null && !project.getImageUrl().isEmpty()) {
-            fileUploadUtil.deleteFile(project.getImageUrl());
-        }
-        
-        // Upload new image
-        String imagePath = fileUploadUtil.saveFile(file, "project-images");
-        
-        // Update project with new image path
-        project.setImageUrl(imagePath);
-        projectRepository.save(project);
-        
-        return imagePath;
-    }
-    
+
     /**
      * Convert Project entity to DTO
      */

@@ -5,36 +5,21 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
+import java.util.UUID;
 
 public interface ExperienceService {
     
-    /**
-     * Get all experience entries for a portfolio with pagination
-     */
-    Page<ExperienceDTO> getExperiencesByPortfolioId(Long portfolioId, Pageable pageable);
+
+
+    List<ExperienceDTO> getAllExperiencesByPortfolioId(UUID portfolioId);
     
-    /**
-     * Get all experience entries for a portfolio
-     */
-    List<ExperienceDTO> getAllExperiencesByPortfolioId(Long portfolioId);
+    ExperienceDTO getExperienceById(UUID experienceId);
     
-    /**
-     * Get experience by ID
-     */
-    ExperienceDTO getExperienceById(Long id);
     
-    /**
-     * Create a new experience entry for a portfolio
-     */
-    ExperienceDTO createExperience(Long portfolioId, ExperienceDTO experienceDTO);
+    ExperienceDTO createExperience(UUID portfolioId, ExperienceDTO experienceDTO);
     
-    /**
-     * Update an existing experience entry
-     */
-    ExperienceDTO updateExperience(Long id, ExperienceDTO experienceDTO);
     
-    /**
-     * Delete an experience entry by ID
-     */
-    void deleteExperience(Long id);
+    ExperienceDTO updateExperience(UUID experienceId, ExperienceDTO experienceDTO);
+    
+    void deleteExperience(UUID experienceId);
 }

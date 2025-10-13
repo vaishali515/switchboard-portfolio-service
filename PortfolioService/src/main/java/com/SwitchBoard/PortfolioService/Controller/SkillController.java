@@ -3,109 +3,73 @@ package com.SwitchBoard.PortfolioService.Controller;
 import com.SwitchBoard.PortfolioService.DTO.ApiResponse;
 import com.SwitchBoard.PortfolioService.DTO.PortfolioDTO;
 import com.SwitchBoard.PortfolioService.DTO.SkillDTO;
+import com.SwitchBoard.PortfolioService.Service.Portfolio.Impl.SkillServiceImpl;
 import com.SwitchBoard.PortfolioService.Service.Portfolio.PortfolioService;
 import com.SwitchBoard.PortfolioService.Service.Portfolio.SkillService;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/portfolios/{portfolioId}/skills")
-@CrossOrigin(origins = "*", allowedHeaders = "*")
+@RequiredArgsConstructor
 public class SkillController {
 
+
     private final SkillService skillService;
-    private final PortfolioService portfolioService;
 
-    public SkillController(SkillService skillService, PortfolioService portfolioService) {
-        this.skillService = skillService;
-        this.portfolioService = portfolioService;
-    }
-
-    @GetMapping
-    public ResponseEntity<Page<SkillDTO>> getSkills(
-            @PathVariable Long portfolioId,
-            @PageableDefault(size = 20, sort = "name") Pageable pageable) {
-        Page<SkillDTO> skills = skillService.getSkillsByPortfolioId(portfolioId, pageable);
-        return ResponseEntity.ok(skills);
-    }
-    
     @GetMapping("/all")
-    public ResponseEntity<List<SkillDTO>> getAllSkills(@PathVariable Long portfolioId) {
+    public ResponseEntity<List<SkillDTO>> getAllSkills(@PathVariable UUID portfolioId) {
         List<SkillDTO> skills = skillService.getAllSkillsByPortfolioId(portfolioId);
         return ResponseEntity.ok(skills);
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<SkillDTO> getSkillById(@PathVariable Long id) {
-        SkillDTO skill = skillService.getSkillById(id);
+    @GetMapping("/{skillId}")
+    public ResponseEntity<SkillDTO> getSkillById(@PathVariable UUID skillId) {
+        SkillDTO skill = skillService.getSkillById(skillId);
         return ResponseEntity.ok(skill);
     }
     
-    @GetMapping("/category/{category}")
-    public ResponseEntity<List<SkillDTO>> getSkillsByCategory(
-            @PathVariable Long portfolioId,
-            @PathVariable String category) {
-        List<SkillDTO> skills = skillService.getSkillsByCategory(portfolioId, category);
-        return ResponseEntity.ok(skills);
-    }
+
 
     @PostMapping
     public ResponseEntity<SkillDTO> createSkill(
-            @PathVariable Long portfolioId,
-            @Valid @RequestBody SkillDTO skillDTO,
-            Authentication authentication) {
-        
-        // Verify the authenticated user is the owner of the portfolio
-        verifyPortfolioOwnership(portfolioId, authentication);
+            @PathVariable UUID portfolioId,
+            @Valid @RequestBody SkillDTO skillDTO) {
+
         
         SkillDTO createdSkill = skillService.createSkill(portfolioId, skillDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdSkill);
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/{skillId}")
     public ResponseEntity<SkillDTO> updateSkill(
-            @PathVariable Long portfolioId,
-            @PathVariable Long id,
-            @Valid @RequestBody SkillDTO skillDTO,
-            Authentication authentication) {
+            @PathVariable UUID portfolioId,
+            @PathVariable UUID skillId,
+            @Valid @RequestBody SkillDTO skillDTO) {
         
-        // Verify the authenticated user is the owner of the portfolio
-        verifyPortfolioOwnership(portfolioId, authentication);
-        
-        SkillDTO updatedSkill = skillService.updateSkill(id, skillDTO);
+
+        SkillDTO updatedSkill = skillService.updateSkill(skillId, skillDTO);
         return ResponseEntity.ok(updatedSkill);
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/{skillId}")
     public ResponseEntity<ApiResponse> deleteSkill(
-            @PathVariable Long portfolioId,
-            @PathVariable Long id,
-            Authentication authentication) {
+            @PathVariable UUID portfolioId,
+            @PathVariable UUID skillId) {
+
         
-        // Verify the authenticated user is the owner of the portfolio
-        verifyPortfolioOwnership(portfolioId, authentication);
-        
-        skillService.deleteSkill(id);
-        return ResponseEntity.ok(new ApiResponse(true, "Skill deleted successfully"));
+        skillService.deleteSkill(skillId);
+        return ResponseEntity.ok( ApiResponse.success("Skill deleted successfully", true));
     }
     
-    /**
-     * Helper method to verify that the authenticated user is the owner of the portfolio
-     */
-    private void verifyPortfolioOwnership(Long portfolioId, Authentication authentication) {
-        PortfolioDTO portfolio = portfolioService.getPortfolioById(portfolioId);
-        Long authenticatedUserId = (Long) authentication.getPrincipal();
-        
-        if (!authenticatedUserId.equals(portfolio.getUserId())) {
-            throw new org.springframework.security.access.AccessDeniedException("You do not have permission to modify this portfolio");
-        }
-    }
+
 }

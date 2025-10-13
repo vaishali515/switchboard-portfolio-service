@@ -7,46 +7,26 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.UUID;
 
 public interface PortfolioService {
     
-    /**
-     * Get all portfolios with pagination
-     */
-//    Page<PortfolioDTO> getAllPortfolios(Pageable pageable);
-    
-    /**
-     * Get portfolio by Email ID
-     */
+   
     PortfolioDTO getPortfolioByEmailId(String emailId);
     
-    /**
-     * Get portfolio by user ID
-     */
-     PortfolioDTO getPortfolioById(Long portfolioId);
+   
+     PortfolioDTO getPortfolioById(UUID portfolioId);
     
-    /**
-     * Create a new portfolio
-     */
     PortfolioDTO createPortfolio(PortfolioRequest portfolioRequest);
     
-    /**
-     * Update an existing portfolio
-     */
-    PortfolioDTO updatePortfolio(Long id, PortfolioRequest portfolioRequest);
     
-    /**
-     * Delete a portfolio by ID
-     */
-    void deletePortfolio(Long id);
+    PortfolioDTO updatePortfolio(UUID portfolioId, PortfolioRequest portfolioRequest, MultipartFile newProfileImage) throws IOException;
     
-    /**
-     * Upload a profile image
-     */
-//    String uploadProfileImage(Long portfolioId, MultipartFile file) throws IOException;
+    void deletePortfolio(UUID portfolioId);
+    
+    
+//    String uploadProfileImage(UUID portfolioId, MultipartFile file) throws IOException;
 //
-    /**
-     * Update overview section
-     */
-    PortfolioDTO updateOverview(Long portfolioId, String overview);
+    
+    PortfolioDTO updateOverview(UUID portfolioId, String overview);
 }

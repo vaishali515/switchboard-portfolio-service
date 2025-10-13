@@ -8,12 +8,13 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class ExperienceDTO {
-    private Long id;
+    private UUID id;
 
     @NotBlank(message = "Company name is required")
     private String company;

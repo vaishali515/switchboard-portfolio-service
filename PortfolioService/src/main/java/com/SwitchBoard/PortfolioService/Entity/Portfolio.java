@@ -6,9 +6,11 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.GenericGenerator;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
@@ -19,8 +21,10 @@ import java.util.List;
 public class Portfolio extends AuditEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(generator = "UUID")
+    @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
+    @Column(updatable = false, nullable = false)
+    private UUID id;
 
     @Column(nullable = false)
     private String emailId;
@@ -35,7 +39,7 @@ public class Portfolio extends AuditEntity {
 
     // Social Links as JSON
     @Column(columnDefinition = "TEXT")
-    private String socialLinks;
+    private List<String> socialLinks;
 
     // Overview section
     @Column(columnDefinition = "TEXT")
