@@ -26,6 +26,7 @@ public class CertificateDTO {
     private LocalDate expiryDate;
     private String credentialId;
     private String credentialUrl;
+
     private String certificateImageUrl;
     private String description;
 
