@@ -1,18 +1,13 @@
 package com.SwitchBoard.PortfolioService.Service.Portfolio.Impl;
 
-import com.SwitchBoard.PortfolioService.DTO.PortfolioDTO;
-import com.SwitchBoard.PortfolioService.DTO.PortfolioRequest;
 import com.SwitchBoard.PortfolioService.Entity.Portfolio;
-import com.SwitchBoard.PortfolioService.Entity.Project;
 import com.SwitchBoard.PortfolioService.Repository.PortfolioRepository;
 import com.SwitchBoard.PortfolioService.Service.Portfolio.FileService;
 import com.SwitchBoard.PortfolioService.Service.Portfolio.PortfolioService;
-import com.SwitchBoard.PortfolioService.Util.FileUploadUtil;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -23,6 +18,7 @@ import java.util.UUID;
 @Service
 @Transactional
 @RequiredArgsConstructor
+@Slf4j
 public class PortfolioServiceImpl implements PortfolioService {
 
     private final PortfolioRepository portfolioRepository;
@@ -44,12 +40,14 @@ public class PortfolioServiceImpl implements PortfolioService {
     }
 
     @Override
-    public PortfolioDTO createPortfolio(PortfolioRequest portfolioRequest) {
+    public PortfolioDTO createPortfolio(PortfolioRequest portfolioRequest) throws IllegalStateException {
+        log.info( "PortfolioServiceImpl :: createPortfolio :: creating portfolio for user: {}", portfolioRequest.getEmailId());
         // Check if a portfolio already exists for this user
         if (portfolioRepository.findByEmailId(portfolioRequest.getEmailId()).isPresent()) {
+            log.info( "PortfolioServiceImpl :: createPortfolio :: portfolio already exists for user: {}", portfolioRequest.getEmailId());
             throw new IllegalStateException("A portfolio already exists for this user");
         }
-        
+        log.info("PortfolioServiceImpl :: createPortfolio :: no existing portfolio found, proceeding to create new one");
         Portfolio portfolio = new Portfolio();
         portfolio.setEmailId(portfolioRequest.getEmailId());
         portfolio.setFullName(portfolioRequest.getFullName());
@@ -57,8 +55,9 @@ public class PortfolioServiceImpl implements PortfolioService {
         portfolio.setProfileImageUrl(portfolioRequest.getProfileImageUrl());
         portfolio.setSocialLinks(portfolioRequest.getSocialLinks());
         portfolio.setOverview(portfolioRequest.getOverview());
-        
+        log.info( "PortfolioServiceImpl :: createPortfolio :: saving new portfolio for user: {}", portfolioRequest.getEmailId());
         Portfolio savedPortfolio = portfolioRepository.save(portfolio);
+        log.info( "PortfolioServiceImpl :: createPortfolio :: successfully created portfolio for user: {}", portfolioRequest.getEmailId());
         return convertToDTO(savedPortfolio);
     }
 

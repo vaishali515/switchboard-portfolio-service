@@ -1,20 +1,14 @@
 package com.SwitchBoard.PortfolioService.Service.Portfolio.Impl;
 
-import com.SwitchBoard.PortfolioService.DTO.CertificateDTO;
-import com.SwitchBoard.PortfolioService.DTO.ProjectDTO;
-import com.SwitchBoard.PortfolioService.Entity.Certificate;
 import com.SwitchBoard.PortfolioService.Entity.Portfolio;
 import com.SwitchBoard.PortfolioService.Entity.Project;
 import com.SwitchBoard.PortfolioService.Repository.PortfolioRepository;
 import com.SwitchBoard.PortfolioService.Repository.ProjectRepository;
 import com.SwitchBoard.PortfolioService.Service.Portfolio.FileService;
 import com.SwitchBoard.PortfolioService.Service.Portfolio.ProjectService;
-import com.SwitchBoard.PortfolioService.Util.FileUploadUtil;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;

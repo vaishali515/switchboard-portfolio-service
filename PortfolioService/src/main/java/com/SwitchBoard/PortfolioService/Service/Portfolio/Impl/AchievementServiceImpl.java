@@ -1,6 +1,5 @@
 package com.SwitchBoard.PortfolioService.Service.Portfolio.Impl;
 
-import com.SwitchBoard.PortfolioService.DTO.AchievementDTO;
 import com.SwitchBoard.PortfolioService.Entity.Achievement;
 import com.SwitchBoard.PortfolioService.Entity.Portfolio;
 import com.SwitchBoard.PortfolioService.Repository.AchievementRepository;
@@ -9,8 +8,6 @@ import com.SwitchBoard.PortfolioService.Service.Portfolio.AchievementService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

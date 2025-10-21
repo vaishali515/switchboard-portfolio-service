@@ -1,6 +1,5 @@
 package com.SwitchBoard.PortfolioService.Service.Portfolio.Impl;
 
-import com.SwitchBoard.PortfolioService.DTO.EducationDTO;
 import com.SwitchBoard.PortfolioService.Entity.Education;
 import com.SwitchBoard.PortfolioService.Entity.Portfolio;
 import com.SwitchBoard.PortfolioService.Repository.EducationRepository;
@@ -8,9 +7,8 @@ import com.SwitchBoard.PortfolioService.Repository.PortfolioRepository;
 import com.SwitchBoard.PortfolioService.Service.Portfolio.EducationService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,6 +19,7 @@ import java.util.stream.Collectors;
 @Service
 @Transactional
 @RequiredArgsConstructor
+@Slf4j
 public class EducationServiceImpl implements EducationService {
 
     private final EducationRepository educationRepository;
@@ -29,8 +28,10 @@ public class EducationServiceImpl implements EducationService {
 
     @Override
     public List<EducationDTO> getAllEducationsByPortfolioId(UUID portfolioId) {
+        log.info("EducationServiceImpl :: getAllEducationsByPortfolioId :: fetching educations for portfolio: {}", portfolioId);
         // Verify portfolio exists
         if (!portfolioRepository.existsById(portfolioId)) {
+            log.error("EducationServiceImpl :: getAllEducationsByPortfolioId :: portfolio not found: {}", portfolioId);
             throw new EntityNotFoundException("Portfolio not found with id: " + portfolioId);
         }
         
@@ -41,15 +42,23 @@ public class EducationServiceImpl implements EducationService {
 
     @Override
     public EducationDTO getEducationById(UUID id) {
+        log.info("EducationServiceImpl :: getEducationById :: fetching education: {}", id);
         return educationRepository.findById(id)
                 .map(this::convertToDTO)
-                .orElseThrow(() -> new EntityNotFoundException("Education not found with id: " + id));
+                .orElseThrow(() -> {
+                    log.error("EducationServiceImpl :: getEducationById :: education not found: {}", id);
+                    return new EntityNotFoundException("Education not found with id: " + id);
+                });
     }
 
     @Override
     public EducationDTO createEducation(UUID portfolioId, EducationDTO educationDTO) {
+        log.info("EducationServiceImpl :: createEducation :: creating education for portfolio: {}, data: {}", portfolioId, educationDTO);
         Portfolio portfolio = portfolioRepository.findById(portfolioId)
-                .orElseThrow(() -> new EntityNotFoundException("Portfolio not found with id: " + portfolioId));
+                .orElseThrow(() -> {
+                    log.error("EducationServiceImpl :: createEducation :: portfolio not found: {}", portfolioId);
+                    return new EntityNotFoundException("Portfolio not found with id: " + portfolioId);
+                });
         
         Education education = new Education();
         BeanUtils.copyProperties(educationDTO, education, "id", "createdAt", "updatedAt");
@@ -61,8 +70,12 @@ public class EducationServiceImpl implements EducationService {
 
     @Override
     public EducationDTO updateEducation(UUID id, EducationDTO educationDTO) {
+        log.info("EducationServiceImpl :: updateEducation :: updating education: {}, data: {}", id, educationDTO);
         Education education = educationRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Education not found with id: " + id));
+                .orElseThrow(() -> {
+                    log.error("EducationServiceImpl :: updateEducation :: education not found: {}", id);
+                    return new EntityNotFoundException("Education not found with id: " + id);
+                });
         
         // Update only non-null fields
         if (educationDTO.getInstitution() != null) {
@@ -96,10 +109,13 @@ public class EducationServiceImpl implements EducationService {
 
     @Override
     public void deleteEducation(UUID id) {
+        log.info("EducationServiceImpl :: deleteEducation :: deleting education: {}", id);
         if (!educationRepository.existsById(id)) {
+            log.error("EducationServiceImpl :: deleteEducation :: education not found: {}", id);
             throw new EntityNotFoundException("Education not found with id: " + id);
         }
         educationRepository.deleteById(id);
+        log.info("EducationServiceImpl :: deleteEducation :: successfully deleted education: {}", id);
     }
     
 
