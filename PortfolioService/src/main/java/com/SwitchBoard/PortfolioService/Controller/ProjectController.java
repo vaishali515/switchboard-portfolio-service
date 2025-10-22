@@ -5,6 +5,7 @@ import com.SwitchBoard.PortfolioService.DTO.Project.ProjectResponseDTO;
 import com.SwitchBoard.PortfolioService.DTO.ApiResponse;
 import com.SwitchBoard.PortfolioService.Service.Portfolio.FileService;
 import com.SwitchBoard.PortfolioService.Service.Portfolio.ProjectService;
+import com.SwitchBoard.PortfolioService.config.ValidImage;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -58,26 +59,10 @@ public class ProjectController {
             @Valid @ModelAttribute ProjectRequestDTO projectRequest,
             @Parameter(description = "Project image (optional, must be an image file)")
             @RequestPart(value = "projectImage", required = false) MultipartFile projectImage) throws IOException {
-        try {
-            String imageUrl = null;
-            if (projectImage != null && !projectImage.isEmpty()) {
-                String contentType = projectImage.getContentType();
-                if (contentType == null || !contentType.startsWith("image/")) {
-                    return ResponseEntity.badRequest()
-                            .body(new ApiResponse("Invalid image type. Only image files are allowed.", null, "400"));
-                }
-                imageUrl = fileService.uploadImage("portfolio-service", projectImage);
-                projectRequest.setProjectImage(projectImage);
-            }
 
-            ProjectResponseDTO created = projectService.createProject(portfolioId, projectRequest);
+            ProjectResponseDTO created = projectService.createProject(portfolioId, projectRequest,projectImage);
             return ResponseEntity.status(HttpStatus.CREATED)
-                    .body(new ApiResponse("Project created successfully", created, "201"));
-        } catch (MultipartException e) {
-            log.error("ProjectController :: createProject :: multipart error: {}", e.getMessage());
-            return ResponseEntity.badRequest()
-                    .body(new ApiResponse("Error processing project image: " + e.getMessage(), null, "400"));
-        }
+                    .body( ApiResponse.success("Project created successfully", created, "201"));
     }
 
     @Operation(summary = "Update an existing project")
@@ -89,24 +74,11 @@ public class ProjectController {
             @Valid @ModelAttribute ProjectRequestDTO projectRequest,
             @Parameter(description = "Updated project image (optional, must be an image file)")
             @RequestPart(value = "projectImage", required = false) MultipartFile projectImage) throws IOException {
-        try {
-            String imageUrl = null;
-            if (projectImage != null && !projectImage.isEmpty()) {
-                String contentType = projectImage.getContentType();
-                if (contentType == null || !contentType.startsWith("image/")) {
-                    return ResponseEntity.badRequest()
-                            .body(new ApiResponse("Invalid image type. Only image files are allowed.", null, "400"));
-                }
-                imageUrl = fileService.uploadImage("portfolio-service", projectImage);
-                projectRequest.setProjectImage(projectImage);
-            }
 
-            ProjectResponseDTO updated = projectService.updateProject(projectId, projectRequest);
-            return ResponseEntity.ok(new ApiResponse("Project updated successfully", updated, "200"));
-        } catch (MultipartException e) {
-            return ResponseEntity.badRequest()
-                    .body(new ApiResponse("Error processing project image: " + e.getMessage(), null, "400"));
-        }
+
+            ProjectResponseDTO updated = projectService.updateProject(projectId, projectRequest,projectImage);
+            return ResponseEntity.ok( ApiResponse.success("Project updated successfully", updated, "200"));
+
     }
 
     @Operation(summary = "Delete a project")
@@ -115,13 +87,13 @@ public class ProjectController {
             @Parameter(description = "ID of the project to delete")
             @PathVariable UUID projectId) {
         projectService.deleteProject(projectId);
-        return ResponseEntity.ok(new ApiResponse("Project deleted successfully", true, "200"));
+        return ResponseEntity.ok( ApiResponse.success("Project deleted successfully", true, "200"));
     }
 
     @ExceptionHandler(MultipartException.class)
     public ResponseEntity<ApiResponse> handleMultipartException(MultipartException e) {
         log.error("ProjectController :: handleMultipartException :: error handling multipart request: {}", e.getMessage());
         return ResponseEntity.badRequest()
-                .body(new ApiResponse("Error processing project image: Please ensure the request is properly formatted", null, "400"));
+                .body( ApiResponse.success("Error processing project image: Please ensure the request is properly formatted", null, "400"));
     }
 }

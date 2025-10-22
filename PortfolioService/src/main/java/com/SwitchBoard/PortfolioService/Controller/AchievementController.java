@@ -54,7 +54,7 @@ public class AchievementController {
 
         AchievementResponseDTO created = achievementService.createAchievement(portfolioId, achievementRequest);
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(new ApiResponse("Achievement created successfully", created, "201"));
+                .body( ApiResponse.success("Achievement created successfully", created, "201"));
     }
 
     @Operation(summary = "Update an existing achievement")
@@ -64,7 +64,7 @@ public class AchievementController {
             @Parameter(description = "Updated achievement details") @Valid @RequestBody AchievementRequestDTO achievementRequest) {
 
         AchievementResponseDTO updated = achievementService.updateAchievement(achievementId, achievementRequest);
-        return ResponseEntity.ok(new ApiResponse("Achievement updated successfully", updated, "200"));
+        return ResponseEntity.ok( ApiResponse.success("Achievement updated successfully", updated, "200"));
     }
 
     @Operation(summary = "Delete an achievement")
@@ -74,6 +74,6 @@ public class AchievementController {
 
         log.info("Deleting achievement with ID: {}", achievementId);
         achievementService.deleteAchievement(achievementId);
-        return ResponseEntity.ok(new ApiResponse("Achievement deleted successfully", true, "200"));
+        return ResponseEntity.ok( ApiResponse.success("Achievement deleted successfully", true, "200"));
     }
 }

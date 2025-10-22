@@ -5,48 +5,69 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+import java.util.UUID;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Schema(description = "Portfolio response payload")
 public class PortfolioResponseDTO {
 
-    @Schema(description = "Unique identifier of the portfolio", example = "1")
-    private Long id;
+    @Schema(description = "Unique identifier of the portfolio", example = "550e8400-e29b-41d4-a716-446655440000")
+    private UUID id;
 
     @Schema(description = "Full name of the portfolio owner", example = "John Doe")
     private String fullName;
 
-    @Schema(description = "Professional tagline or headline", example = "Senior Full Stack Developer")
-    private String tagline;
-
     @Schema(description = "Email address", example = "john.doe@example.com")
-    private String email;
+    private String emailId;
 
-    @Schema(description = "Phone number", example = "+1-234-567-8900")
-    private String phone;
-
-    @Schema(description = "Location", example = "New York, USA")
-    private String location;
-
-    @Schema(description = "Bio or about me section", example = "Passionate developer with 5+ years of experience...")
+    @Schema(description = "Short bio or about section", example = "Passionate backend developer with 3+ years of experience...")
     private String bio;
 
-    @Schema(description = "URL of the profile picture", example = "https://example.com/images/profile.jpg")
-    private String profilePictureUrl;
+    @Schema(description = "URL of the profile image", example = "https://example.com/images/profile.jpg")
+    private String profileImageUrl;
 
-    @Schema(description = "LinkedIn profile URL", example = "https://linkedin.com/in/johndoe")
-    private String linkedinUrl;
+    @Schema(description = "List of social media links", example = "[\"https://twitter.com/johndoe\", \"https://medium.com/@johndoe\"]")
+    private List<String> socialLinks;
+
+    @Schema(description = "LeetCode profile URL", example = "https://leetcode.com/johndoe")
+    private String leetcodeLink;
 
     @Schema(description = "GitHub profile URL", example = "https://github.com/johndoe")
-    private String githubUrl;
+    private String githubLink;
+
+    @Schema(description = "LinkedIn profile URL", example = "https://linkedin.com/in/johndoe")
+    private String linkedInLink;
+
+    @Schema(description = "Twitter profile URL", example = "https://twitter.com/johndoe")
+    private String twitterLink;
 
     @Schema(description = "Personal website URL", example = "https://johndoe.dev")
-    private String websiteUrl;
+    private String personalWebsiteLink;
 
-    @Schema(description = "Resume download URL", example = "https://example.com/resume.pdf")
-    private String resumeUrl;
+    @Schema(description = "Professional overview section", example = "Experienced software engineer specializing in Java and Spring Boot...")
+    private String overview;
 
-    @Schema(description = "Additional contact information or social links", example = "Twitter: @johndoe")
-    private String additionalLinks;
+    @Schema(description = "Resume download link", example = "https://example.com/resume.pdf")
+    private String resumeLink;
+
+    @Schema(description = "Skills associated with the portfolio")
+    private List<String> skills;
+
+    @Schema(description = "Projects associated with the portfolio")
+    private List<String> projects;
+
+    @Schema(description = "Education history associated with the portfolio")
+    private List<String> educations;
+
+    @Schema(description = "Work experience associated with the portfolio")
+    private List<String> experiences;
+
+    @Schema(description = "Certificates associated with the portfolio")
+    private List<String> certificates;
+
+    @Schema(description = "Achievements associated with the portfolio")
+    private List<String> achievements;
 }

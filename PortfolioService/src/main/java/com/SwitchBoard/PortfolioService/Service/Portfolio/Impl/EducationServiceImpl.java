@@ -1,5 +1,7 @@
 package com.SwitchBoard.PortfolioService.Service.Portfolio.Impl;
 
+import com.SwitchBoard.PortfolioService.DTO.Education.EducationRequestDTO;
+import com.SwitchBoard.PortfolioService.DTO.Education.EducationResponseDTO;
 import com.SwitchBoard.PortfolioService.Entity.Education;
 import com.SwitchBoard.PortfolioService.Entity.Portfolio;
 import com.SwitchBoard.PortfolioService.Repository.EducationRepository;
@@ -27,7 +29,7 @@ public class EducationServiceImpl implements EducationService {
 
 
     @Override
-    public List<EducationDTO> getAllEducationsByPortfolioId(UUID portfolioId) {
+    public List<EducationResponseDTO> getAllEducationsByPortfolioId(UUID portfolioId) {
         log.info("EducationServiceImpl :: getAllEducationsByPortfolioId :: fetching educations for portfolio: {}", portfolioId);
         // Verify portfolio exists
         if (!portfolioRepository.existsById(portfolioId)) {
@@ -41,7 +43,7 @@ public class EducationServiceImpl implements EducationService {
     }
 
     @Override
-    public EducationDTO getEducationById(UUID id) {
+    public EducationResponseDTO getEducationById(UUID id) {
         log.info("EducationServiceImpl :: getEducationById :: fetching education: {}", id);
         return educationRepository.findById(id)
                 .map(this::convertToDTO)
@@ -52,7 +54,7 @@ public class EducationServiceImpl implements EducationService {
     }
 
     @Override
-    public EducationDTO createEducation(UUID portfolioId, EducationDTO educationDTO) {
+    public EducationResponseDTO createEducation(UUID portfolioId, EducationRequestDTO educationDTO) {
         log.info("EducationServiceImpl :: createEducation :: creating education for portfolio: {}, data: {}", portfolioId, educationDTO);
         Portfolio portfolio = portfolioRepository.findById(portfolioId)
                 .orElseThrow(() -> {
@@ -69,7 +71,7 @@ public class EducationServiceImpl implements EducationService {
     }
 
     @Override
-    public EducationDTO updateEducation(UUID id, EducationDTO educationDTO) {
+    public EducationResponseDTO updateEducation(UUID id, EducationRequestDTO educationDTO) {
         log.info("EducationServiceImpl :: updateEducation :: updating education: {}, data: {}", id, educationDTO);
         Education education = educationRepository.findById(id)
                 .orElseThrow(() -> {
@@ -119,8 +121,8 @@ public class EducationServiceImpl implements EducationService {
     }
     
 
-    private EducationDTO convertToDTO(Education education) {
-        EducationDTO educationDTO = new EducationDTO();
+    private EducationResponseDTO convertToDTO(Education education) {
+        EducationResponseDTO educationDTO = new EducationResponseDTO();
         BeanUtils.copyProperties(education, educationDTO);
         return educationDTO;
     }

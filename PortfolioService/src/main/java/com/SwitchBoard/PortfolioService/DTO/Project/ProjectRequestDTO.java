@@ -45,4 +45,6 @@ public class ProjectRequestDTO {
 
     @Schema(description = "Project status (e.g., Completed, In Progress)", example = "Completed")
     private String status;
+    @Schema(description = "Indicates if the project is ongoing", example = "false")
+    private Boolean ongoing = false;
 }

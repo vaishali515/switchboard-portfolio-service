@@ -1,5 +1,7 @@
 package com.SwitchBoard.PortfolioService.Service.Portfolio.Impl;
 
+import com.SwitchBoard.PortfolioService.DTO.Portfolio.PortfolioRequestDTO;
+import com.SwitchBoard.PortfolioService.DTO.Portfolio.PortfolioResponseDTO;
 import com.SwitchBoard.PortfolioService.Entity.Portfolio;
 import com.SwitchBoard.PortfolioService.Repository.PortfolioRepository;
 import com.SwitchBoard.PortfolioService.Service.Portfolio.FileService;
@@ -26,21 +28,21 @@ public class PortfolioServiceImpl implements PortfolioService {
 
 
     @Override
-    public PortfolioDTO getPortfolioByEmailId(String emailId) {
+    public PortfolioResponseDTO getPortfolioByEmailId(String emailId) {
         return portfolioRepository.findByEmailId(emailId)
                 .map(this::convertToDTO)
                 .orElseThrow(() -> new EntityNotFoundException("Portfolio not found with id: " + emailId));
     }
 
     @Override
-    public PortfolioDTO getPortfolioById(UUID portfolioId) {
+    public PortfolioResponseDTO getPortfolioById(UUID portfolioId) {
         return portfolioRepository.findById(portfolioId)
                 .map(this::convertToDTO)
                 .orElseThrow(() -> new EntityNotFoundException("Portfolio not found for user with id: " + portfolioId));
     }
 
     @Override
-    public PortfolioDTO createPortfolio(PortfolioRequest portfolioRequest) throws IllegalStateException {
+    public PortfolioResponseDTO createPortfolio(PortfolioRequestDTO portfolioRequest) throws IllegalStateException {
         log.info( "PortfolioServiceImpl :: createPortfolio :: creating portfolio for user: {}", portfolioRequest.getEmailId());
         // Check if a portfolio already exists for this user
         if (portfolioRepository.findByEmailId(portfolioRequest.getEmailId()).isPresent()) {
@@ -52,7 +54,7 @@ public class PortfolioServiceImpl implements PortfolioService {
         portfolio.setEmailId(portfolioRequest.getEmailId());
         portfolio.setFullName(portfolioRequest.getFullName());
         portfolio.setBio(portfolioRequest.getBio());
-        portfolio.setProfileImageUrl(portfolioRequest.getProfileImageUrl());
+//        portfolio.setProfileImageUrl(portfolioRequest.getProfileImageUrl());
         portfolio.setSocialLinks(portfolioRequest.getSocialLinks());
         portfolio.setOverview(portfolioRequest.getOverview());
         log.info( "PortfolioServiceImpl :: createPortfolio :: saving new portfolio for user: {}", portfolioRequest.getEmailId());
@@ -64,7 +66,7 @@ public class PortfolioServiceImpl implements PortfolioService {
 
 
     @Override
-    public PortfolioDTO updatePortfolio(UUID id, PortfolioRequest portfolioRequest, MultipartFile newImage) throws IOException {
+    public PortfolioResponseDTO updatePortfolio(UUID id, PortfolioRequestDTO portfolioRequest, MultipartFile newImage) throws IOException {
         Portfolio portfolio = portfolioRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Portfolio not found with id: " + id));
 
@@ -78,10 +80,10 @@ public class PortfolioServiceImpl implements PortfolioService {
 
             // Upload new image
             String newImageUrl = fileService.uploadImage("portfolio-service", newImage);
-            portfolioRequest.setProfileImageUrl(newImageUrl);
+            portfolio.setProfileImageUrl(newImageUrl);
         } else {
             // Keep old image if no new image uploaded
-            portfolioRequest.setProfileImageUrl(portfolio.getProfileImageUrl());
+            portfolio.setProfileImageUrl(portfolio.getProfileImageUrl());
         }
         
         // Update only non-null fields
@@ -91,9 +93,7 @@ public class PortfolioServiceImpl implements PortfolioService {
         if (portfolioRequest.getBio() != null) {
             portfolio.setBio(portfolioRequest.getBio());
         }
-        if (portfolioRequest.getProfileImageUrl() != null) {
-            portfolio.setProfileImageUrl(portfolioRequest.getProfileImageUrl());
-        }
+
         if (portfolioRequest.getSocialLinks() != null) {
             portfolio.setSocialLinks(portfolioRequest.getSocialLinks());
         }
@@ -101,7 +101,6 @@ public class PortfolioServiceImpl implements PortfolioService {
             portfolio.setOverview(portfolioRequest.getOverview());
         }
 
-        portfolio.setProfileImageUrl(portfolioRequest.getProfileImageUrl());
 
         Portfolio updatedPortfolio = portfolioRepository.save(portfolio);
         return convertToDTO(updatedPortfolio);
@@ -129,7 +128,7 @@ public class PortfolioServiceImpl implements PortfolioService {
     }
 
     @Override
-    public PortfolioDTO updateOverview(UUID portfolioId, String overview) {
+    public PortfolioResponseDTO updateOverview(UUID portfolioId, String overview) {
         Portfolio portfolio = portfolioRepository.findById(portfolioId)
                 .orElseThrow(() -> new EntityNotFoundException("Portfolio not found with id: " + portfolioId));
         
@@ -138,8 +137,8 @@ public class PortfolioServiceImpl implements PortfolioService {
         return convertToDTO(updatedPortfolio);
     }
 
-    private PortfolioDTO convertToDTO(Portfolio portfolio) {
-        PortfolioDTO portfolioDTO = new PortfolioDTO();
+    private PortfolioResponseDTO convertToDTO(Portfolio portfolio) {
+        PortfolioResponseDTO portfolioDTO = new PortfolioResponseDTO();
         BeanUtils.copyProperties(portfolio, portfolioDTO);
         // Note: We're not including nested collections here to avoid circular references
         // These should be loaded separately via their respective services

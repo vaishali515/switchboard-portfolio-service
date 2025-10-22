@@ -1,5 +1,7 @@
 package com.SwitchBoard.PortfolioService.Service.Portfolio;
 
+import com.SwitchBoard.PortfolioService.DTO.Project.ProjectRequestDTO;
+import com.SwitchBoard.PortfolioService.DTO.Project.ProjectResponseDTO;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -9,15 +11,15 @@ import java.util.UUID;
 public interface ProjectService {
     
     
-    List<ProjectDTO> getAllProjectsByPortfolioId(UUID portfolioId);
-   
-    ProjectDTO getProjectById(UUID projectId);
-    
-    
-    ProjectDTO createProject(UUID portfolioId, ProjectDTO projectDTO);
-    
-    
-    ProjectDTO updateProject(UUID projectId, ProjectDTO projectDTO, MultipartFile newImage) throws IOException;
+    List<ProjectResponseDTO> getAllProjectsByPortfolioId(UUID portfolioId);
+
+    ProjectResponseDTO getProjectById(UUID projectId);
+
+
+    ProjectResponseDTO createProject(UUID portfolioId, ProjectRequestDTO projectDTO , MultipartFile projectImage) throws IOException;
+
+
+    ProjectResponseDTO updateProject(UUID projectId, ProjectRequestDTO projectDTO, MultipartFile newImage) throws IOException;
     
    
     void deleteProject(UUID projectId);

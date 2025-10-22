@@ -1,6 +1,9 @@
 package com.SwitchBoard.PortfolioService.Service.Portfolio;
 
 
+import com.SwitchBoard.PortfolioService.DTO.Achievement.AchievementRequestDTO;
+import com.SwitchBoard.PortfolioService.DTO.Achievement.AchievementResponseDTO;
+
 import java.util.List;
 import java.util.UUID;
 
@@ -13,22 +16,22 @@ public interface AchievementService {
     /**
      * Get all achievements for a portfolio
      */
-    List<AchievementDTO> getAllAchievementsByPortfolioId(UUID portfolioId);
+    List<AchievementResponseDTO> getAllAchievementsByPortfolioId(UUID portfolioId);
     
     /**
      * Get achievement by ID
      */
-    AchievementDTO getAchievementById(UUID achievementId);
+    AchievementResponseDTO getAchievementById(UUID achievementId);
     
     /**
      * Create a new achievement for a portfolio
      */
-    AchievementDTO createAchievement(UUID portfolioId, AchievementDTO achievementDTO);
+    AchievementResponseDTO createAchievement(UUID portfolioId, AchievementRequestDTO achievementRequestDTO);
     
     /**
      * Update an existing achievement
      */
-    AchievementDTO updateAchievement(UUID achievementId, AchievementDTO achievementDTO);
+    AchievementResponseDTO updateAchievement(UUID achievementId, AchievementRequestDTO achievementRequestDTO);
     
     /**
      * Delete an achievement by ID

@@ -1,5 +1,7 @@
 package com.SwitchBoard.PortfolioService.Service.Portfolio.Impl;
 
+import com.SwitchBoard.PortfolioService.DTO.Skill.SkillRequestDTO;
+import com.SwitchBoard.PortfolioService.DTO.Skill.SkillResponseDTO;
 import com.SwitchBoard.PortfolioService.Entity.Portfolio;
 import com.SwitchBoard.PortfolioService.Entity.Skill;
 import com.SwitchBoard.PortfolioService.Repository.PortfolioRepository;
@@ -27,7 +29,7 @@ public class SkillServiceImpl implements SkillService {
 
     
     @Override
-    public List<SkillDTO> getAllSkillsByPortfolioId(UUID portfolioId) {
+    public List<SkillResponseDTO> getAllSkillsByPortfolioId(UUID portfolioId) {
         log.info("SkillServiceImpl :: getAllSkillsByPortfolioId :: fetching skills for portfolio: {}", portfolioId);
         // Verify portfolio exists
         if (!portfolioRepository.existsById(portfolioId)) {
@@ -41,7 +43,7 @@ public class SkillServiceImpl implements SkillService {
     }
 
     @Override
-    public SkillDTO getSkillById(UUID id) {
+    public SkillResponseDTO getSkillById(UUID id) {
         log.info("SkillServiceImpl :: getSkillById :: fetching skill: {}", id);
         return skillRepository.findById(id)
                 .map(this::convertToDTO)
@@ -52,7 +54,7 @@ public class SkillServiceImpl implements SkillService {
     }
 
     @Override
-    public SkillDTO createSkill(UUID portfolioId, SkillDTO skillDTO) {
+    public SkillResponseDTO createSkill(UUID portfolioId, SkillRequestDTO skillDTO) {
         log.info("SkillServiceImpl :: createSkill :: creating skill for portfolio: {}, skill data: {}", portfolioId, skillDTO);
         Portfolio portfolio = portfolioRepository.findById(portfolioId)
                 .orElseThrow(() -> {
@@ -69,7 +71,7 @@ public class SkillServiceImpl implements SkillService {
     }
 
     @Override
-    public SkillDTO updateSkill(UUID skillId, SkillDTO skillDTO) {
+    public SkillResponseDTO updateSkill(UUID skillId, SkillRequestDTO skillDTO) {
         log.info("SkillServiceImpl :: updateSkill :: updating skill: {}, with data: {}", skillId, skillDTO);
         Skill skill = skillRepository.findById(skillId)
                 .orElseThrow(() -> {
@@ -120,8 +122,8 @@ public class SkillServiceImpl implements SkillService {
 //    /**
 //     * Convert Skill entity to DTO
 //     */
-    private SkillDTO convertToDTO(Skill skill) {
-        SkillDTO skillDTO = new SkillDTO();
+    private SkillResponseDTO convertToDTO(Skill skill) {
+        SkillResponseDTO skillDTO = new SkillResponseDTO();
         BeanUtils.copyProperties(skill, skillDTO);
         return skillDTO;
     }

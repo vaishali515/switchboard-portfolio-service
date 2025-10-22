@@ -57,29 +57,12 @@ public class CertificateController {
             @Parameter(description = "ID of the portfolio to add certificate to")
             @PathVariable UUID portfolioId,
             @Parameter(description = "Certificate details")
-            @Valid @ModelAttribute CertificateRequestDTO certificateRequest,
-            @Parameter(description = "Certificate image (optional, must be an image file)")
-            @RequestPart(value = "certificateImage", required = false) MultipartFile certificateImage) throws IOException {
-        try {
-            if (certificateImage != null && !certificateImage.isEmpty()) {
-                String contentType = certificateImage.getContentType();
-                if (contentType == null || !contentType.startsWith("image/")) {
-                    return ResponseEntity.badRequest()
-                            .body(new ApiResponse("Invalid image type. Only image files are allowed.", null, "400"));
-                }
-
-                String imageUrl = fileService.uploadImage("portfolio-service", certificateImage);
-                certificateRequest.setCertificateImage(certificateImage);
-            }
+            @Valid @ModelAttribute CertificateRequestDTO certificateRequest) throws IOException {
 
             CertificateResponseDTO created = certificateService.createCertificate(portfolioId, certificateRequest);
             return ResponseEntity.status(HttpStatus.CREATED)
-                    .body(new ApiResponse("Certificate created successfully", created, "201"));
-        } catch (MultipartException e) {
-            log.error("CertificateController :: createCertificate :: multipart error: {}", e.getMessage());
-            return ResponseEntity.badRequest()
-                    .body(new ApiResponse("Error processing certificate image: " + e.getMessage(), null, "400"));
-        }
+                    .body( ApiResponse.success("Certificate created successfully", created, "201"));
+
     }
 
     @Operation(summary = "Update an existing certificate")
@@ -88,27 +71,10 @@ public class CertificateController {
             @Parameter(description = "ID of the certificate to update")
             @PathVariable UUID certificateId,
             @Parameter(description = "Updated certificate details")
-            @Valid @ModelAttribute CertificateRequestDTO certificateRequest,
-            @Parameter(description = "Updated certificate image (optional, must be an image file)")
-            @RequestPart(value = "certificateImage", required = false) MultipartFile certificateImage) throws IOException {
-        try {
-            if (certificateImage != null && !certificateImage.isEmpty()) {
-                String contentType = certificateImage.getContentType();
-                if (contentType == null || !contentType.startsWith("image/")) {
-                    return ResponseEntity.badRequest()
-                            .body(new ApiResponse("Invalid image type. Only image files are allowed.", null, "400"));
-                }
-
-                String imageUrl = fileService.uploadImage("portfolio-service", certificateImage);
-                certificateRequest.setCertificateImage(certificateImage);
-            }
+            @Valid @ModelAttribute CertificateRequestDTO certificateRequest) throws IOException {
 
             CertificateResponseDTO updated = certificateService.updateCertificate(certificateId, certificateRequest);
-            return ResponseEntity.ok(new ApiResponse("Certificate updated successfully", updated, "200"));
-        } catch (MultipartException e) {
-            return ResponseEntity.badRequest()
-                    .body(new ApiResponse("Error processing certificate image: " + e.getMessage(), null, "400"));
-        }
+            return ResponseEntity.ok( ApiResponse.success("Certificate updated successfully", updated, "200"));
     }
 
     @Operation(summary = "Delete a certificate")
@@ -118,13 +84,13 @@ public class CertificateController {
             @PathVariable UUID certificateId) {
         log.info("CertificateController :: deleteCertificate :: deleting certificate: {}", certificateId);
         certificateService.deleteCertificate(certificateId);
-        return ResponseEntity.ok(new ApiResponse("Certificate deleted successfully", true, "200"));
+        return ResponseEntity.ok( ApiResponse.success("Certificate deleted successfully", true, "200"));
     }
 
     @ExceptionHandler(MultipartException.class)
     public ResponseEntity<ApiResponse> handleMultipartException(MultipartException e) {
         log.error("CertificateController :: handleMultipartException :: error handling multipart request: {}", e.getMessage());
         return ResponseEntity.badRequest()
-                .body(new ApiResponse("Error processing certificate image: Please ensure the request is properly formatted", null, "400"));
+                .body( ApiResponse.error("Error processing certificate image: Please ensure the request is properly formatted", null, "400"));
     }
 }

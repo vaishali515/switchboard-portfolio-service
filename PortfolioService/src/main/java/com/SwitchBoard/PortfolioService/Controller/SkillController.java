@@ -56,7 +56,7 @@ public class SkillController {
         log.info("SkillController :: createSkill :: creating skill for portfolio: {}, skill: {}", portfolioId, skillRequest);
         SkillResponseDTO created = skillService.createSkill(portfolioId, skillRequest);
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(new ApiResponse("Skill created successfully", created, "201"));
+                .body( ApiResponse.success("Skill created successfully", created, "201"));
     }
 
     @Operation(summary = "Update an existing skill")
@@ -70,7 +70,7 @@ public class SkillController {
             @Valid @RequestBody SkillRequestDTO skillRequest) {
         log.info("SkillController :: updateSkill :: updating skill: {} for portfolio: {}, data: {}", skillId, portfolioId, skillRequest);
         SkillResponseDTO updated = skillService.updateSkill(skillId, skillRequest);
-        return ResponseEntity.ok(new ApiResponse("Skill updated successfully", updated, "200"));
+        return ResponseEntity.ok( ApiResponse.success("Skill updated successfully", updated, "200"));
     }
 
     @Operation(summary = "Delete a skill")
@@ -82,6 +82,6 @@ public class SkillController {
             @PathVariable UUID skillId) {
         log.info("SkillController :: deleteSkill :: deleting skill: {} from portfolio: {}", skillId, portfolioId);
         skillService.deleteSkill(skillId);
-        return ResponseEntity.ok(new ApiResponse("Skill deleted successfully", true, "200"));
+        return ResponseEntity.ok( ApiResponse.success("Skill deleted successfully", true, "200"));
     }
 }

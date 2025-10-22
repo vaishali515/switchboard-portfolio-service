@@ -66,17 +66,12 @@ public class PortfolioController {
             @Parameter(description = "Portfolio data", required = true)
             @ModelAttribute @Valid PortfolioRequestDTO portfolioRequest
     ) throws IOException {
-        log.info("PortfolioController :: createPortfolio :: received request to create portfolio for email: {}", portfolioRequest.getEmail());
+        log.info("PortfolioController :: createPortfolio :: received request to create portfolio for email: {}", portfolioRequest.getEmailId());
         try {
-            MultipartFile profilePicture = portfolioRequest.getProfilePicture();
+            MultipartFile profilePicture = portfolioRequest.getProfileImage();
             if (profilePicture != null && !profilePicture.isEmpty()) {
                 String contentType = profilePicture.getContentType();
                 log.info("PortfolioController :: createPortfolio :: image content type: {}", contentType);
-                if (contentType == null || !contentType.startsWith("image/")) {
-                    log.error("PortfolioController :: createPortfolio :: invalid image content type: {}", contentType);
-                    return ResponseEntity.badRequest()
-                            .body(ApiResponse.error("Invalid image type. Only image files are allowed.", null));
-                }
 
                 String imageUrl = fileService.uploadImage("portfolio-service", profilePicture);
                 log.info("PortfolioController :: createPortfolio :: uploaded image URL: {}", imageUrl);
@@ -89,7 +84,7 @@ public class PortfolioController {
         } catch (MultipartException e) {
             log.error("PortfolioController :: createPortfolio :: multipart error: {}", e.getMessage());
             return ResponseEntity.badRequest()
-                    .body(ApiResponse.error("Error processing profile picture: " + e.getMessage(), null));
+                    .body(ApiResponse.error("Error processing profile picture: " + e.getMessage(), null,null));
         }
     }
 
@@ -106,24 +101,21 @@ public class PortfolioController {
             @ModelAttribute @Valid PortfolioRequestDTO portfolioRequest
     ) throws IOException {
         try {
-            MultipartFile profilePicture = portfolioRequest.getProfilePicture();
+            MultipartFile profilePicture = portfolioRequest.getProfileImage();
             if (profilePicture != null && !profilePicture.isEmpty()) {
                 String contentType = profilePicture.getContentType();
-                if (contentType == null || !contentType.startsWith("image/")) {
-                    return ResponseEntity.badRequest()
-                            .body(ApiResponse.error("Invalid image type. Only image files are allowed.", null));
-                }
+
 
                 String imageUrl = fileService.uploadImage("portfolio-service", profilePicture);
                 log.info("PortfolioController :: updatePortfolio :: uploaded new image URL: {}", imageUrl);
             }
 
-            PortfolioResponseDTO updated = portfolioService.updatePortfolio(portfolioId, portfolioRequest);
+            PortfolioResponseDTO updated = portfolioService.updatePortfolio(portfolioId, portfolioRequest,portfolioRequest.getProfileImage());
             return ResponseEntity.ok(ApiResponse.success("Portfolio updated successfully", updated, null));
 
         } catch (MultipartException e) {
             return ResponseEntity.badRequest()
-                    .body(ApiResponse.error("Error processing profile picture: " + e.getMessage(), null));
+                    .body(ApiResponse.error("Error processing profile picture: " + e.getMessage(), null,null));
         }
     }
 
@@ -144,7 +136,7 @@ public class PortfolioController {
     public ResponseEntity<ApiResponse> handleMultipartException(MultipartException e) {
         log.error("PortfolioController :: handleMultipartException :: error handling multipart request: {}", e.getMessage());
         return ResponseEntity.badRequest()
-                .body(ApiResponse.error("Error processing multipart request: Please ensure the request is properly formatted", null));
+                .body(ApiResponse.error("Error processing multipart request: Please ensure the request is properly formatted", null,null));
     }
 }
 

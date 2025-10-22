@@ -85,7 +85,7 @@ public class EducationController {
         log.info("EducationController :: createEducation :: creating education for portfolio: {}, data: {}", portfolioId, educationRequest);
         EducationResponseDTO created = educationService.createEducation(portfolioId, educationRequest);
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(new ApiResponse("Education entry created successfully", created, "201"));
+                .body( ApiResponse.success("Education entry created successfully", created, "201"));
     }
 
     @Operation(summary = "Update an existing education entry")
@@ -107,7 +107,7 @@ public class EducationController {
             @Valid @RequestBody EducationRequestDTO educationRequest) {
         log.info("EducationController :: updateEducation :: updating education: {}, data: {}", educationId, educationRequest);
         EducationResponseDTO updated = educationService.updateEducation(educationId, educationRequest);
-        return ResponseEntity.ok(new ApiResponse("Education entry updated successfully", updated, "200"));
+        return ResponseEntity.ok( ApiResponse.success("Education entry updated successfully", updated, "200"));
     }
 
     @Operation(summary = "Delete an education entry")
@@ -123,6 +123,6 @@ public class EducationController {
             @PathVariable UUID educationId) {
         log.info("EducationController :: deleteEducation :: deleting education: {}", educationId);
         educationService.deleteEducation(educationId);
-        return ResponseEntity.ok(new ApiResponse("Education entry deleted successfully", true, "200"));
+        return ResponseEntity.ok( ApiResponse.success("Education entry deleted successfully", true, "200"));
     }
 }

@@ -1,5 +1,7 @@
 package com.SwitchBoard.PortfolioService.Service.Portfolio.Impl;
 
+import com.SwitchBoard.PortfolioService.DTO.Achievement.AchievementRequestDTO;
+import com.SwitchBoard.PortfolioService.DTO.Achievement.AchievementResponseDTO;
 import com.SwitchBoard.PortfolioService.Entity.Achievement;
 import com.SwitchBoard.PortfolioService.Entity.Portfolio;
 import com.SwitchBoard.PortfolioService.Repository.AchievementRepository;
@@ -26,7 +28,7 @@ public class AchievementServiceImpl implements AchievementService {
 
 
     @Override
-    public List<AchievementDTO> getAllAchievementsByPortfolioId(UUID portfolioId) {
+    public List<AchievementResponseDTO> getAllAchievementsByPortfolioId(UUID portfolioId) {
         // Verify portfolio exists
         if (!portfolioRepository.existsById(portfolioId)) {
             throw new EntityNotFoundException("Portfolio not found with id: " + portfolioId);
@@ -38,14 +40,14 @@ public class AchievementServiceImpl implements AchievementService {
     }
 
     @Override
-    public AchievementDTO getAchievementById(UUID achievementId) {
+    public AchievementResponseDTO getAchievementById(UUID achievementId) {
         return achievementRepository.findById(achievementId)
                 .map(this::convertToDTO)
                 .orElseThrow(() -> new EntityNotFoundException("Achievement not found with achievementId: " + achievementId));
     }
 
     @Override
-    public AchievementDTO createAchievement(UUID portfolioId, AchievementDTO achievementDTO) {
+    public AchievementResponseDTO createAchievement(UUID portfolioId, AchievementRequestDTO achievementDTO) {
         Portfolio portfolio = portfolioRepository.findById(portfolioId)
                 .orElseThrow(() -> new EntityNotFoundException("Portfolio not found with id: " + portfolioId));
         
@@ -58,7 +60,7 @@ public class AchievementServiceImpl implements AchievementService {
     }
 
     @Override
-    public AchievementDTO updateAchievement(UUID achievementId, AchievementDTO achievementDTO) {
+    public AchievementResponseDTO updateAchievement(UUID achievementId, AchievementRequestDTO achievementDTO) {
         Achievement achievement = achievementRepository.findById(achievementId)
                 .orElseThrow(() -> new EntityNotFoundException("Achievement not found with achievementId: " + achievementId));
         
@@ -94,8 +96,8 @@ public class AchievementServiceImpl implements AchievementService {
     /**
      * Convert Achievement entity to DTO
      */
-    private AchievementDTO convertToDTO(Achievement achievement) {
-        AchievementDTO achievementDTO = new AchievementDTO();
+    private AchievementResponseDTO convertToDTO(Achievement achievement) {
+        AchievementResponseDTO achievementDTO = new AchievementResponseDTO();
         BeanUtils.copyProperties(achievement, achievementDTO);
         return achievementDTO;
     }

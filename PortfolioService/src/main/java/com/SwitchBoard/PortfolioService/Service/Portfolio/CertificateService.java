@@ -1,5 +1,7 @@
 package com.SwitchBoard.PortfolioService.Service.Portfolio;
 
+import com.SwitchBoard.PortfolioService.DTO.Certificate.CertificateRequestDTO;
+import com.SwitchBoard.PortfolioService.DTO.Certificate.CertificateResponseDTO;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -12,22 +14,22 @@ public interface CertificateService {
     /**
      * Get all certificates for a portfolio
      */
-    List<CertificateDTO> getAllCertificatesByPortfolioId(UUID portfolioId);
+    List<CertificateResponseDTO> getAllCertificatesByPortfolioId(UUID portfolioId);
     
     /**
      * Get certificate by ID
      */
-    CertificateDTO getCertificateById(UUID id);
+    CertificateResponseDTO getCertificateById(UUID id);
     
     /**
      * Create a new certificate for a portfolio
      */
-    CertificateDTO createCertificate(UUID portfolioId, CertificateDTO certificateDTO);
+    CertificateResponseDTO createCertificate(UUID portfolioId, CertificateRequestDTO certificateDTO) throws IOException;
     
     /**
      * Update an existing certificate
      */
-    CertificateDTO updateCertificate(UUID id, CertificateDTO certificateDTO, MultipartFile newImage) throws IOException;
+    CertificateResponseDTO updateCertificate(UUID id, CertificateRequestDTO certificateDTO) throws IOException;
     
     /**
      * Delete a certificate by ID

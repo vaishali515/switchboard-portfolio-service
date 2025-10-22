@@ -1,5 +1,7 @@
 package com.SwitchBoard.PortfolioService.Service.Portfolio.Impl;
 
+import com.SwitchBoard.PortfolioService.DTO.Project.ProjectRequestDTO;
+import com.SwitchBoard.PortfolioService.DTO.Project.ProjectResponseDTO;
 import com.SwitchBoard.PortfolioService.Entity.Portfolio;
 import com.SwitchBoard.PortfolioService.Entity.Project;
 import com.SwitchBoard.PortfolioService.Repository.PortfolioRepository;
@@ -8,6 +10,7 @@ import com.SwitchBoard.PortfolioService.Service.Portfolio.FileService;
 import com.SwitchBoard.PortfolioService.Service.Portfolio.ProjectService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,6 +24,7 @@ import java.util.stream.Collectors;
 @Service
 @Transactional
 @RequiredArgsConstructor
+@Slf4j
 public class ProjectServiceImpl implements ProjectService {
 
     private final ProjectRepository projectRepository;
@@ -28,7 +32,7 @@ public class ProjectServiceImpl implements ProjectService {
     private final FileService fileService;
 
     @Override
-    public List<ProjectDTO> getAllProjectsByPortfolioId(UUID portfolioId) {
+    public List<ProjectResponseDTO> getAllProjectsByPortfolioId(UUID portfolioId) {
         // Verify portfolio exists
         if (!portfolioRepository.existsById(portfolioId)) {
             throw new EntityNotFoundException("Portfolio not found with id: " + portfolioId);
@@ -40,18 +44,24 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
-    public ProjectDTO getProjectById(UUID projectId) {
+    public ProjectResponseDTO getProjectById(UUID projectId) {
         return projectRepository.findById(projectId)
                 .map(this::convertToDTO)
                 .orElseThrow(() -> new EntityNotFoundException("Project not found with id: " + projectId));
     }
 
     @Override
-    public ProjectDTO createProject(UUID portfolioId, ProjectDTO projectDTO) {
+    public ProjectResponseDTO createProject(UUID portfolioId, ProjectRequestDTO projectDTO, MultipartFile imageFile) throws IOException {
         Portfolio portfolio = portfolioRepository.findById(portfolioId)
                 .orElseThrow(() -> new EntityNotFoundException("Portfolio not found with id: " + portfolioId));
-        
+
         Project project = new Project();
+        if (imageFile != null && !imageFile.isEmpty()) {
+            // Upload new image
+            String newImageUrl = fileService.uploadImage("portfolio-service", imageFile);
+            project.setImageUrl(newImageUrl);
+        }
+
         BeanUtils.copyProperties(projectDTO, project, "id", "createdAt", "updatedAt");
         project.setPortfolio(portfolio);
         
@@ -60,7 +70,7 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
-    public ProjectDTO updateProject(UUID projectId, ProjectDTO projectDTO, MultipartFile newImage) throws IOException {
+    public ProjectResponseDTO updateProject(UUID projectId, ProjectRequestDTO projectDTO, MultipartFile newImage) throws IOException {
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new EntityNotFoundException("Project not found with id: " + projectId));
 
@@ -73,21 +83,24 @@ public class ProjectServiceImpl implements ProjectService {
 
             // Upload new image
             String newImageUrl = fileService.uploadImage("portfolio-service", newImage);
-            projectDTO.setImageUrl(newImageUrl);
+            project.setImageUrl(newImageUrl);
         } else {
             // Keep old image if no new image uploaded
-            projectDTO.setImageUrl(project.getImageUrl());
+            log.info( "ProjectServiceImpl :: updateProject :: no new image uploaded, retaining existing image URL");
         }
         
         // Update only non-null fields
-        if (projectDTO.getName() != null) {
-            project.setName(projectDTO.getName());
+        if (projectDTO.getTitle() != null) {
+            project.setTitle(projectDTO.getTitle());
         }
         if (projectDTO.getDescription() != null) {
             project.setDescription(projectDTO.getDescription());
         }
-        if (projectDTO.getUrl() != null) {
-            project.setUrl(projectDTO.getUrl());
+        if (projectDTO.getLiveUrl() != null) {
+            project.setLiveUrl(projectDTO.getLiveUrl());
+        }
+        if(projectDTO.getRepoUrl() != null){
+            project.setRepoUrl(projectDTO.getRepoUrl());
         }
         if (projectDTO.getTechnologies() != null) {
             project.setTechnologies(projectDTO.getTechnologies());
@@ -101,7 +114,7 @@ public class ProjectServiceImpl implements ProjectService {
         if (projectDTO.getOngoing() != null) {
             project.setOngoing(projectDTO.getOngoing());
         }
-        project.setImageUrl(projectDTO.getImageUrl());
+
         
         Project updatedProject = projectRepository.save(project);
         return convertToDTO(updatedProject);
@@ -132,8 +145,8 @@ public class ProjectServiceImpl implements ProjectService {
     /**
      * Convert Project entity to DTO
      */
-    private ProjectDTO convertToDTO(Project project) {
-        ProjectDTO projectDTO = new ProjectDTO();
+    private ProjectResponseDTO convertToDTO(Project project) {
+        ProjectResponseDTO projectDTO = new ProjectResponseDTO();
         BeanUtils.copyProperties(project, projectDTO);
         return projectDTO;
     }
