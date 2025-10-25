@@ -12,6 +12,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartException;
@@ -51,12 +52,12 @@ public class CertificateController {
         return ResponseEntity.ok(certificate);
     }
 
-    @Operation(summary = "Create a new certificate")
-    @PostMapping
+    @Operation(summary = "Create a new certificate" )
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ApiResponse> createCertificate(
             @Parameter(description = "ID of the portfolio to add certificate to")
             @PathVariable UUID portfolioId,
-            @Parameter(description = "Certificate details")
+            @Parameter(description = "Certificate details" )
             @Valid @ModelAttribute CertificateRequestDTO certificateRequest) throws IOException {
 
             CertificateResponseDTO created = certificateService.createCertificate(portfolioId, certificateRequest);
@@ -66,7 +67,7 @@ public class CertificateController {
     }
 
     @Operation(summary = "Update an existing certificate")
-    @PutMapping("/{certificateId}")
+    @PutMapping(path = "/{certificateId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ApiResponse> updateCertificate(
             @Parameter(description = "ID of the certificate to update")
             @PathVariable UUID certificateId,

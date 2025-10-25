@@ -37,6 +37,7 @@ public class Experience extends AuditEntity {
 
     private LocalDate endDate;
 
+    @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT FALSE")
     private Boolean current = false;
 
     @Column(columnDefinition = "TEXT")
@@ -48,4 +49,5 @@ public class Experience extends AuditEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "portfolio_id")
     private Portfolio portfolio;
+
 }

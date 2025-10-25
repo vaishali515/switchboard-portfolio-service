@@ -16,10 +16,10 @@ public interface ProjectService {
     ProjectResponseDTO getProjectById(UUID projectId);
 
 
-    ProjectResponseDTO createProject(UUID portfolioId, ProjectRequestDTO projectDTO , MultipartFile projectImage) throws IOException;
+    ProjectResponseDTO createProject(UUID portfolioId, ProjectRequestDTO projectDTO ) ;
 
 
-    ProjectResponseDTO updateProject(UUID projectId, ProjectRequestDTO projectDTO, MultipartFile newImage) throws IOException;
+    ProjectResponseDTO updateProject(UUID projectId, ProjectRequestDTO projectDTO) ;
     
    
     void deleteProject(UUID projectId);

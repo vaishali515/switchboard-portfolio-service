@@ -8,23 +8,15 @@ import java.io.IOException;
 import java.util.UUID;
 
 public interface PortfolioService {
-    
-   
-    PortfolioResponseDTO getPortfolioByEmailId(String emailId);
-
 
     PortfolioResponseDTO getPortfolioById(UUID portfolioId);
 
-    PortfolioResponseDTO createPortfolio(PortfolioRequestDTO portfolioRequest);
+    PortfolioResponseDTO getPortfolioByEmailId(String emailId);
 
+    PortfolioResponseDTO createPortfolio(PortfolioRequestDTO request) throws IOException;
 
-    PortfolioResponseDTO updatePortfolio(UUID portfolioId, PortfolioRequestDTO portfolioRequest, MultipartFile newProfileImage) throws IOException;
-    
+    PortfolioResponseDTO updatePortfolio(UUID portfolioId, PortfolioRequestDTO request) throws IOException;
+
     void deletePortfolio(UUID portfolioId);
-    
-    
-//    String uploadProfileImage(UUID portfolioId, MultipartFile file) throws IOException;
-//
 
-    PortfolioResponseDTO updateOverview(UUID portfolioId, String overview);
 }

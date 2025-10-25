@@ -1,10 +1,12 @@
 package com.SwitchBoard.PortfolioService.DTO.Project;
 
+import com.SwitchBoard.PortfolioService.config.ValidImage;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -45,6 +47,11 @@ public class ProjectRequestDTO {
 
     @Schema(description = "Project status (e.g., Completed, In Progress)", example = "Completed")
     private String status;
+
     @Schema(description = "Indicates if the project is ongoing", example = "false")
     private Boolean ongoing = false;
+
+    @ValidImage
+    @Schema(description = "Image file of the project (JPG, PNG)", example = "project_image.png")
+    private MultipartFile image;
 }

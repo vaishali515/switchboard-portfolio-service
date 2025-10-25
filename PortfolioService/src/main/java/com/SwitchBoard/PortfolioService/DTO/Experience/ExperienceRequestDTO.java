@@ -31,7 +31,7 @@ public class ExperienceRequestDTO {
     @Schema(description = "End date of the experience", example = "2025-06-01")
     private LocalDate endDate;
 
-    @Schema(description = "Indicates if the experience is current", example = "true")
+    @Schema(nullable = false, description = "Indicates if the experience is current", example = "true")
     private Boolean current;
 
     @Schema(description = "Brief description of the experience", example = "Worked on backend development using Spring Boot")
