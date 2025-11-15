@@ -7,8 +7,10 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.GenericGenerator;
+import software.amazon.awssdk.services.s3.endpoints.internal.Value;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.UUID;
 
 @EqualsAndHashCode(callSuper = true)
@@ -26,17 +28,18 @@ public class Project extends AuditEntity {
     private UUID id;
 
     @Column(nullable = false)
-    private String name;
+    private String title;
 
     @Column(columnDefinition = "TEXT")
     private String description;
 
-    private String url;
+    private String liveUrl;
+    private String repoUrl;
 
     private String imageUrl;
 
     @Column(columnDefinition = "TEXT")
-    private String technologies;
+    private List<String> technologies;
 
     private LocalDate startDate;
 

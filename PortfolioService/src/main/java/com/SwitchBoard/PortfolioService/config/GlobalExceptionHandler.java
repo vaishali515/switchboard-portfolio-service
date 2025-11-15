@@ -16,18 +16,23 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import jakarta.servlet.http.HttpServletRequest;
+
 @RestControllerAdvice
 @Slf4j
 public class GlobalExceptionHandler {
 
+    // ENTITY NOT FOUND
     @ExceptionHandler(EntityNotFoundException.class)
-    public ResponseEntity<ApiResponse> handleEntityNotFoundException(EntityNotFoundException ex) {
+    public ResponseEntity<ApiResponse> handleEntityNotFoundException(EntityNotFoundException ex, HttpServletRequest request) {
         log.error("EntityNotFoundException: {}", ex.getMessage());
-        return ApiResponse.error(ex.getMessage(), HttpStatus.NOT_FOUND);
+        ApiResponse response = ApiResponse.error(ex.getMessage(), "NOT_FOUND", request.getRequestURI());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
+    // VALIDATION ERRORS
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ApiResponse> handleValidationExceptions(MethodArgumentNotValidException ex) {
+    public ResponseEntity<ApiResponse> handleValidationExceptions(MethodArgumentNotValidException ex, HttpServletRequest request) {
         log.error("Validation error: {}", ex.getMessage());
 
         Map<String, String> errors = new HashMap<>();
@@ -37,30 +42,39 @@ public class GlobalExceptionHandler {
             }
         });
 
-        return ApiResponse.error("Validation failed", errors, HttpStatus.BAD_REQUEST);
+        ApiResponse response = ApiResponse.error("Validation failed: " + errors, "VALIDATION_ERROR", request.getRequestURI());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
+    // CONSTRAINT VIOLATION
     @ExceptionHandler(ConstraintViolationException.class)
-    public ResponseEntity<ApiResponse> handleConstraintViolationException(ConstraintViolationException ex) {
+    public ResponseEntity<ApiResponse> handleConstraintViolationException(ConstraintViolationException ex, HttpServletRequest request) {
         log.error("ConstraintViolationException: {}", ex.getMessage());
-        return ApiResponse.error("Validation failed: " + ex.getMessage(), HttpStatus.BAD_REQUEST);
+        ApiResponse response = ApiResponse.error("Validation failed: " + ex.getMessage(), "VALIDATION_ERROR", request.getRequestURI());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
+    // FILE UPLOAD ERROR
     @ExceptionHandler(MultipartException.class)
-    public ResponseEntity<ApiResponse> handleMultipartException(MultipartException ex) {
+    public ResponseEntity<ApiResponse> handleMultipartException(MultipartException ex, HttpServletRequest request) {
         log.error("MultipartException: {}", ex.getMessage());
-        return ApiResponse.error("File upload failed: " + ex.getMessage(), HttpStatus.BAD_REQUEST);
+        ApiResponse response = ApiResponse.error("File upload failed: " + ex.getMessage(), "FILE_UPLOAD_ERROR", request.getRequestURI());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
+    // IO EXCEPTION
     @ExceptionHandler(IOException.class)
-    public ResponseEntity<ApiResponse> handleIOException(IOException ex) {
+    public ResponseEntity<ApiResponse> handleIOException(IOException ex, HttpServletRequest request) {
         log.error("IOException: {}", ex.getMessage());
-        return ApiResponse.error("File operation failed: " + ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        ApiResponse response = ApiResponse.error("File operation failed: " + ex.getMessage(), "IO_ERROR", request.getRequestURI());
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }
 
+    // GENERIC EXCEPTION
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ApiResponse> handleGenericException(Exception ex) {
+    public ResponseEntity<ApiResponse> handleGenericException(Exception ex, HttpServletRequest request) {
         log.error("Unhandled exception: {}", ex.getMessage());
-        return ApiResponse.error("An unexpected error occurred: " + ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        ApiResponse response = ApiResponse.error("An unexpected error occurred: " + ex.getMessage(), "INTERNAL_ERROR", request.getRequestURI());
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }
 }

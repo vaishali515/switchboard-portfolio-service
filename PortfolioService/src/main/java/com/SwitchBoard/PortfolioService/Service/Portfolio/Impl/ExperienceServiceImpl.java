@@ -1,6 +1,7 @@
 package com.SwitchBoard.PortfolioService.Service.Portfolio.Impl;
 
-import com.SwitchBoard.PortfolioService.DTO.ExperienceDTO;
+import com.SwitchBoard.PortfolioService.DTO.Experience.ExperienceRequestDTO;
+import com.SwitchBoard.PortfolioService.DTO.Experience.ExperienceResponseDTO;
 import com.SwitchBoard.PortfolioService.Entity.Experience;
 import com.SwitchBoard.PortfolioService.Entity.Portfolio;
 import com.SwitchBoard.PortfolioService.Repository.ExperienceRepository;
@@ -8,9 +9,8 @@ import com.SwitchBoard.PortfolioService.Repository.PortfolioRepository;
 import com.SwitchBoard.PortfolioService.Service.Portfolio.ExperienceService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,6 +21,7 @@ import java.util.stream.Collectors;
 @Service
 @Transactional
 @RequiredArgsConstructor
+@Slf4j
 public class ExperienceServiceImpl implements ExperienceService {
 
     private final ExperienceRepository experienceRepository;
@@ -28,9 +29,11 @@ public class ExperienceServiceImpl implements ExperienceService {
 
 
     @Override
-    public List<ExperienceDTO> getAllExperiencesByPortfolioId(UUID portfolioId) {
+    public List<ExperienceResponseDTO> getAllExperiencesByPortfolioId(UUID portfolioId) {
+        log.info("ExperienceServiceImpl :: getAllExperiencesByPortfolioId :: fetching experiences for portfolio: {}", portfolioId);
         // Verify portfolio exists
         if (!portfolioRepository.existsById(portfolioId)) {
+            log.error("ExperienceServiceImpl :: getAllExperiencesByPortfolioId :: portfolio not found: {}", portfolioId);
             throw new EntityNotFoundException("Portfolio not found with id: " + portfolioId);
         }
         
@@ -40,16 +43,24 @@ public class ExperienceServiceImpl implements ExperienceService {
     }
 
     @Override
-    public ExperienceDTO getExperienceById(UUID experienceId) {
+    public ExperienceResponseDTO getExperienceById(UUID experienceId) {
+        log.info("ExperienceServiceImpl :: getExperienceById :: fetching experience: {}", experienceId);
         return experienceRepository.findById(experienceId)
                 .map(this::convertToDTO)
-                .orElseThrow(() -> new EntityNotFoundException("Experience not found with id: " + experienceId));
+                .orElseThrow(() -> {
+                    log.error("ExperienceServiceImpl :: getExperienceById :: experience not found: {}", experienceId);
+                    return new EntityNotFoundException("Experience not found with id: " + experienceId);
+                });
     }
 
     @Override
-    public ExperienceDTO createExperience(UUID portfolioId, ExperienceDTO experienceDTO) {
+    public ExperienceResponseDTO createExperience(UUID portfolioId, ExperienceRequestDTO experienceDTO) {
+        log.info("ExperienceServiceImpl :: createExperience :: creating experience for portfolio: {}, data: {}", portfolioId, experienceDTO);
         Portfolio portfolio = portfolioRepository.findById(portfolioId)
-                .orElseThrow(() -> new EntityNotFoundException("Portfolio not found with id: " + portfolioId));
+                .orElseThrow(() -> {
+                    log.error("ExperienceServiceImpl :: createExperience :: portfolio not found: {}", portfolioId);
+                    return new EntityNotFoundException("Portfolio not found with id: " + portfolioId);
+                });
         
         Experience experience = new Experience();
         BeanUtils.copyProperties(experienceDTO, experience, "id", "createdAt", "updatedAt");
@@ -60,9 +71,13 @@ public class ExperienceServiceImpl implements ExperienceService {
     }
 
     @Override
-    public ExperienceDTO updateExperience(UUID experienceId, ExperienceDTO experienceDTO) {
+    public ExperienceResponseDTO updateExperience(UUID experienceId, ExperienceRequestDTO experienceDTO) {
+        log.info("ExperienceServiceImpl :: updateExperience :: updating experience: {}, data: {}", experienceId, experienceDTO);
         Experience experience = experienceRepository.findById(experienceId)
-                .orElseThrow(() -> new EntityNotFoundException("Experience not found with id: " + experienceId));
+                .orElseThrow(() -> {
+                    log.error("ExperienceServiceImpl :: updateExperience :: experience not found: {}", experienceId);
+                    return new EntityNotFoundException("Experience not found with id: " + experienceId);
+                });
         
         // Update only non-null fields
         if (experienceDTO.getCompany() != null) {
@@ -96,14 +111,17 @@ public class ExperienceServiceImpl implements ExperienceService {
 
     @Override
     public void deleteExperience(UUID experienceId) {
+        log.info("ExperienceServiceImpl :: deleteExperience :: deleting experience: {}", experienceId);
         if (!experienceRepository.existsById(experienceId)) {
+            log.error("ExperienceServiceImpl :: deleteExperience :: experience not found: {}", experienceId);
             throw new EntityNotFoundException("Experience not found with id: " + experienceId);
         }
         experienceRepository.deleteById(experienceId);
+        log.info("ExperienceServiceImpl :: deleteExperience :: successfully deleted experience: {}", experienceId);
     }
 
-    private ExperienceDTO convertToDTO(Experience experience) {
-        ExperienceDTO experienceDTO = new ExperienceDTO();
+    private ExperienceResponseDTO convertToDTO(Experience experience) {
+        ExperienceResponseDTO experienceDTO = new ExperienceResponseDTO();
         BeanUtils.copyProperties(experience, experienceDTO);
         return experienceDTO;
     }
