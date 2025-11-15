@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -139,6 +140,15 @@ public class ProjectServiceImpl implements ProjectService {
     private ProjectResponseDTO convertToDTO(Project project) {
         ProjectResponseDTO projectDTO = new ProjectResponseDTO();
         BeanUtils.copyProperties(project, projectDTO);
+        
+        // Ensure null collections are returned as empty lists instead of null
+        if (projectDTO.getTechnologies() == null) {
+            projectDTO.setTechnologies(Collections.emptyList());
+        }
+        if (projectDTO.getFeatures() == null) {
+            projectDTO.setFeatures(Collections.emptyList());
+        }
+        
         return projectDTO;
     }
 }

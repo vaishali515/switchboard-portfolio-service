@@ -30,6 +30,8 @@ public class Skill extends AuditEntity {
     private String category;
 
     private Integer proficiencyLevel;
+    
+    private Integer yearsOfExperience;
 
     @Column(columnDefinition = "TEXT")
     private String description;
