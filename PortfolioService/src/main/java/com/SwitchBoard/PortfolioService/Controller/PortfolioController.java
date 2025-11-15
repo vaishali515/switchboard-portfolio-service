@@ -1,20 +1,19 @@
 package com.SwitchBoard.PortfolioService.Controller;
 
-import com.SwitchBoard.PortfolioService.DTO.*;
-import com.SwitchBoard.PortfolioService.Service.Portfolio.FileService;
+import com.SwitchBoard.PortfolioService.DTO.ApiResponse;
+import com.SwitchBoard.PortfolioService.DTO.Portfolio.PortfolioRequestDTO;
+import com.SwitchBoard.PortfolioService.DTO.Portfolio.PortfolioResponseDTO;
 import com.SwitchBoard.PortfolioService.Service.Portfolio.PortfolioService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartException;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.UUID;
@@ -23,98 +22,64 @@ import java.util.UUID;
 @RequestMapping("/api/v1/portfolio")
 @RequiredArgsConstructor
 @Slf4j
+@Tag(name = "Portfolio Management", description = "Portfolio management APIs")
 public class PortfolioController {
 
     private final PortfolioService portfolioService;
-    private final FileService fileService;
 
+    // ------------------ GET BY ID ------------------
     @GetMapping("/{portfolioId}")
-    public ResponseEntity<PortfolioDTO> getPortfolioById(@PathVariable UUID portfolioId) {
-        PortfolioDTO portfolio = portfolioService.getPortfolioById(portfolioId);
-        return ResponseEntity.ok(portfolio);
+    @Operation(summary = "Get portfolio by ID")
+    public ResponseEntity<PortfolioResponseDTO> getPortfolioById(
+            @Parameter(description = "Portfolio ID", required = true)
+            @PathVariable UUID portfolioId) {
+        return ResponseEntity.ok(portfolioService.getPortfolioById(portfolioId));
     }
 
+    // ------------------ GET BY EMAIL ------------------
     @GetMapping("/user/{emailId}")
-    public ResponseEntity<PortfolioDTO> getPortfolioByUserId(@PathVariable String emailId) {
-        PortfolioDTO portfolio = portfolioService.getPortfolioByEmailId(emailId);
-        return ResponseEntity.ok(portfolio);
+    @Operation(summary = "Get portfolio by user email ID")
+    public ResponseEntity<PortfolioResponseDTO> getPortfolioByEmail(
+            @Parameter(description = "User email ID", required = true)
+            @PathVariable String emailId) {
+        return ResponseEntity.ok(portfolioService.getPortfolioByEmailId(emailId));
     }
 
+    // ------------------ CREATE ------------------
+    @PostMapping(consumes = {"multipart/form-data"})
+    @Operation(summary = "Create a new portfolio with image and resume upload")
+    public ResponseEntity<ApiResponse> createPortfolio(
+            @ModelAttribute @Valid PortfolioRequestDTO portfolioRequest) throws IOException {
 
-    @PostMapping
-    public ResponseEntity<PortfolioDTO> createPortfolio(
-            @Valid @RequestBody PortfolioRequest portfolioRequest, @RequestPart(value = "image", required = false) MultipartFile image) throws IOException {
-
-            try {
-                if (image != null && !image.isEmpty()) {
-
-                    String contentType = image.getContentType();
-                    if (contentType == null || !contentType.startsWith("image/")) {
-                        return ResponseEntity.badRequest().body(null);
-                    }
-
-                    String imageUrl = fileService.uploadImage("portfolio-service", image);
-                    portfolioRequest.setProfileImageUrl(imageUrl);
-                }
-
-
-                PortfolioDTO createdPortfolio = portfolioService.createPortfolio(portfolioRequest);
-                return ResponseEntity.status(HttpStatus.CREATED).body(createdPortfolio);
-
-            } catch (MultipartException e) {
-                log.error("InterviewExperienceController :: createInterviewExperience :: multipart error: {}", e.getMessage());
-                throw new RuntimeException("Error processing multipart request: " + e.getMessage());
-            } catch (Exception e) {
-                log.error("InterviewExperienceController :: createInterviewExperience :: error: {}", e.getMessage());
-                throw e;
-            }
-        }
-
-        @ExceptionHandler(MultipartException.class)
-        public ResponseEntity<String> handleMultipartException(MultipartException e) {
-            log.error("InterviewExperienceController :: handleMultipartException :: error handling multipart request: {}", e.getMessage());
-            return ResponseEntity.badRequest().body("Error processing multipart request: Please ensure the request is properly formatted");
-        }
-
-
-    @PutMapping("/{portfolioId}")
-    public ResponseEntity<PortfolioDTO> updatePortfolio(
-                        @PathVariable UUID portfolioId,
-                        @Valid @RequestBody PortfolioRequest portfolioRequest, @RequestPart(value = "image", required = false) MultipartFile image
-    ) throws IOException {
+        log.info("PortfolioController :: createPortfolio :: received request for {}", portfolioRequest.getEmailId());
         try {
-            PortfolioDTO updatedPortfolio = portfolioService.updatePortfolio(portfolioId, portfolioRequest, image);
-            return ResponseEntity.ok(updatedPortfolio);
+            PortfolioResponseDTO created = portfolioService.createPortfolio(portfolioRequest);
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(ApiResponse.success("Portfolio created successfully", created, null));
+
+        } catch (MultipartException e) {
+            log.error("Error in multipart processing: {}", e.getMessage());
+            return ResponseEntity.badRequest()
+                    .body(ApiResponse.error("Invalid file upload: " + e.getMessage(), null, null));
         }
-        catch (Exception e) {
-            log.error("CertificateController :: updateCertificate :: error :: {}", e.getMessage());
-            throw e;
-        }
     }
 
-
-    @DeleteMapping("/{portfolioId}")
-    public ResponseEntity<ApiResponse> deletePortfolio(@PathVariable UUID portfolioId) {
-        
-        // Get the portfolio to check if the authenticated user is the owner
-        PortfolioDTO existingPortfolio = portfolioService.getPortfolioById(portfolioId);
-
-        portfolioService.deletePortfolio(portfolioId);
-        return ResponseEntity.ok( ApiResponse.success( "Portfolio deleted successfully",true));
-    }
-
-    @GetMapping("/{portfolioId}/overview")
-    public ResponseEntity<String> getOverview(@PathVariable UUID portfolioId) {
-        PortfolioDTO portfolio = portfolioService.getPortfolioById(portfolioId);
-        return ResponseEntity.ok(portfolio.getOverview());
-    }
-
-    @PutMapping("/{id}/overview")
-    public ResponseEntity<PortfolioDTO> updateOverview(
+    // ------------------ UPDATE ------------------
+    @PutMapping(value = "/{portfolioId}", consumes = {"multipart/form-data"})
+    @Operation(summary = "Update portfolio details or files")
+    public ResponseEntity<ApiResponse> updatePortfolio(
             @PathVariable UUID portfolioId,
-            @Valid @RequestBody OverviewRequest overviewRequest) {
+            @ModelAttribute @Valid PortfolioRequestDTO portfolioRequest) throws IOException {
 
-        PortfolioDTO updatedPortfolio = portfolioService.updateOverview(portfolioId, overviewRequest.getOverview());
-        return ResponseEntity.ok(updatedPortfolio);
+        PortfolioResponseDTO updated = portfolioService.updatePortfolio(portfolioId, portfolioRequest);
+        return ResponseEntity.ok(ApiResponse.success("Portfolio updated successfully", updated, null));
+    }
+
+    // ------------------ DELETE ------------------
+    @DeleteMapping("/{portfolioId}")
+    @Operation(summary = "Delete a portfolio")
+    public ResponseEntity<ApiResponse> deletePortfolio(@PathVariable UUID portfolioId) {
+        portfolioService.deletePortfolio(portfolioId);
+        return ResponseEntity.ok(ApiResponse.success("Portfolio deleted successfully", true, null));
     }
 }

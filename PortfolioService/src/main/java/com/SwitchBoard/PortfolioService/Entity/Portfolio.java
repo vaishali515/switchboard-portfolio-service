@@ -38,12 +38,29 @@ public class Portfolio extends AuditEntity {
     private String profileImageUrl;
 
     // Social Links as JSON
-    @Column(columnDefinition = "TEXT")
     private List<String> socialLinks;
 
-    // Overview section
+    @Column(columnDefinition = "TEXT")
+    private String leetcodeLink;
+
+    @Column(columnDefinition = "TEXT")
+    private String githubLink;
+
+    @Column(columnDefinition = "TEXT")
+    private String linkedInLink;
+
+    @Column(columnDefinition = "TEXT")
+    private String twitterLink;
+
+    @Column(columnDefinition = "TEXT")
+    private String personalWebsiteLink;
+
+    // Overview sectiona
     @Column(columnDefinition = "TEXT")
     private String overview;
+
+    @Column(columnDefinition = "TEXT")
+    private String resumeLink;
 
     // Relationships with child entities
     @OneToMany(mappedBy = "portfolio", cascade = CascadeType.ALL, orphanRemoval = true)
