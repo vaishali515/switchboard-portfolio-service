@@ -45,13 +45,25 @@ public class PortfolioController {
         return ResponseEntity.ok(portfolioService.getPortfolioByEmailId(emailId));
     }
 
+    //----------------GET BY HEADER EMAIL-----------------
+    @GetMapping("/user")
+    @Operation(summary = "Get portfolio by user email ID")
+    public ResponseEntity<PortfolioResponseDTO> getPortfolioByHeaderEmail(
+            @Parameter(description = "User email ID", required = true)
+            @RequestHeader("X-User-Email") String userEmailIdHeader) {
+
+        return ResponseEntity.ok(portfolioService.getPortfolioByEmailId(userEmailIdHeader));
+    }
+
     // ------------------ CREATE ------------------
     @PostMapping(consumes = {"multipart/form-data"})
     @Operation(summary = "Create a new portfolio with image and resume upload")
     public ResponseEntity<ApiResponse> createPortfolio(
-            @ModelAttribute @Valid PortfolioRequestDTO portfolioRequest) throws IOException {
+            @ModelAttribute @Valid PortfolioRequestDTO portfolioRequest,
+            @RequestHeader("X-User-Email") String userEmailIdHeader) throws IOException {
 
         log.info("PortfolioController :: createPortfolio :: received request for {}", portfolioRequest.getEmailId());
+        portfolioRequest.setEmailId(userEmailIdHeader);
         try {
             PortfolioResponseDTO created = portfolioService.createPortfolio(portfolioRequest);
             return ResponseEntity.status(HttpStatus.CREATED)
@@ -60,7 +72,7 @@ public class PortfolioController {
         } catch (MultipartException e) {
             log.error("Error in multipart processing: {}", e.getMessage());
             return ResponseEntity.badRequest()
-                    .body(ApiResponse.error("Invalid file upload: " + e.getMessage(), null, null));
+                    .body(ApiResponse.error("Invalid file upload: " + e.getMessage(), null, "400" ));
         }
     }
 

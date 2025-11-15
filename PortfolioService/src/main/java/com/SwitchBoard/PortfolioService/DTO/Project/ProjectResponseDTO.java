@@ -38,6 +38,9 @@ public class ProjectResponseDTO {
 
     @Schema(description = "URL of the project repository", example = "https://github.com/username/project")
     private String repoUrl;
+    
+    @Schema(description = "URL of the project image", example = "https://example.com/images/project.jpg")
+    private String imageUrl;
 
     @Schema(description = "Key features of the project", example = "[\"User Authentication\", \"Payment Integration\", \"Real-time Chat\"]")
     private List<String> features;
@@ -47,4 +50,7 @@ public class ProjectResponseDTO {
 
     @Schema(description = "Project status (e.g., Completed, In Progress)", example = "Completed")
     private String status;
+    
+    @Schema(description = "Indicates if the project is ongoing", example = "false")
+    private Boolean ongoing;
 }

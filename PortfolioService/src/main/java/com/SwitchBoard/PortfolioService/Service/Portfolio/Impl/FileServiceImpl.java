@@ -40,7 +40,6 @@ public class FileServiceImpl implements FileService {
                 .bucket(bucket)
                 .key(key)
                 .contentType(file.getContentType())
-                .acl("public-read")
                 .build();
 
         s3Client.putObject(request, RequestBody.fromBytes(file.getBytes()));

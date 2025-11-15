@@ -9,7 +9,6 @@ import com.SwitchBoard.PortfolioService.Repository.CertificateRepository;
 import com.SwitchBoard.PortfolioService.Repository.PortfolioRepository;
 import com.SwitchBoard.PortfolioService.Service.Portfolio.CertificateService;
 import com.SwitchBoard.PortfolioService.Service.Portfolio.FileService;
-import com.SwitchBoard.PortfolioService.Util.FileUploadUtil;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,7 +30,7 @@ public class CertificateServiceImpl implements CertificateService {
 
     private final CertificateRepository certificateRepository;
     private final PortfolioRepository portfolioRepository;
-    private final FileUploadUtil fileUploadUtil;
+
     private final FileService fileService;
 
 

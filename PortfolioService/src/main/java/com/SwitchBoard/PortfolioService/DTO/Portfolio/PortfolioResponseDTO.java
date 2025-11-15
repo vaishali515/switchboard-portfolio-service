@@ -1,5 +1,11 @@
 package com.SwitchBoard.PortfolioService.DTO.Portfolio;
 
+import com.SwitchBoard.PortfolioService.DTO.Achievement.AchievementResponseDTO;
+import com.SwitchBoard.PortfolioService.DTO.Certificate.CertificateResponseDTO;
+import com.SwitchBoard.PortfolioService.DTO.Education.EducationResponseDTO;
+import com.SwitchBoard.PortfolioService.DTO.Experience.ExperienceResponseDTO;
+import com.SwitchBoard.PortfolioService.DTO.Project.ProjectResponseDTO;
+import com.SwitchBoard.PortfolioService.DTO.Skill.SkillResponseDTO;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -55,20 +61,20 @@ public class PortfolioResponseDTO {
     private String resumeLink;
 
     @Schema(description = "Skills associated with the portfolio")
-    private List<String> skills;
+    private List<SkillResponseDTO> skills;
 
     @Schema(description = "Projects associated with the portfolio")
-    private List<String> projects;
+    private List<ProjectResponseDTO> projects;
 
     @Schema(description = "Education history associated with the portfolio")
-    private List<String> educations;
+    private List<EducationResponseDTO> educations;
 
     @Schema(description = "Work experience associated with the portfolio")
-    private List<String> experiences;
+    private List<ExperienceResponseDTO> experiences;
 
     @Schema(description = "Certificates associated with the portfolio")
-    private List<String> certificates;
+    private List<CertificateResponseDTO> certificates;
 
     @Schema(description = "Achievements associated with the portfolio")
-    private List<String> achievements;
+    private List<AchievementResponseDTO> achievements;
 }
