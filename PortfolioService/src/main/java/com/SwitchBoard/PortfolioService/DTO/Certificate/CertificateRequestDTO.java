@@ -1,6 +1,7 @@
 package com.SwitchBoard.PortfolioService.DTO.Certificate;
 
 import com.SwitchBoard.PortfolioService.config.ValidImage;
+import com.SwitchBoard.PortfolioService.config.ValidImageDocument;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
@@ -36,7 +37,7 @@ public class CertificateRequestDTO {
     @Schema(description = "URL to verify the certificate", example = "https://example.com/certificate/123456")
     private String credentialUrl;
 
-    @ValidImage
+    @ValidImageDocument
     @Schema(description = "Certificate image file (optional)")
     private MultipartFile certificateImage;
 

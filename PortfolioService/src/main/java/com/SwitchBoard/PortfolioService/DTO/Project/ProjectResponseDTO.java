@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.UUID;
 
 @Data
 @NoArgsConstructor
@@ -15,7 +16,7 @@ import java.util.List;
 public class ProjectResponseDTO {
 
     @Schema(description = "Unique identifier of the project", example = "1")
-    private Long id;
+    private UUID id;
 
     @Schema(description = "Title of the project", example = "E-Commerce Platform")
     private String title;

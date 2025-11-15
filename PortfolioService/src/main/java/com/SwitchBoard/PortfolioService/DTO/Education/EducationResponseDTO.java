@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.util.UUID;
 
 @Data
 @NoArgsConstructor
@@ -14,7 +15,7 @@ import java.time.LocalDate;
 public class EducationResponseDTO {
 
     @Schema(description = "Unique identifier of the education record", example = "1")
-    private Long id;
+    private UUID id;
 
     @Schema(description = "Name of the educational institution", example = "Stanford University")
     private String institution;

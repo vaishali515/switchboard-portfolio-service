@@ -51,74 +51,65 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
-    public ProjectResponseDTO createProject(UUID portfolioId, ProjectRequestDTO projectDTO, MultipartFile imageFile) throws IOException {
+    public ProjectResponseDTO createProject(UUID portfolioId, ProjectRequestDTO projectDTO) {
         Portfolio portfolio = portfolioRepository.findById(portfolioId)
                 .orElseThrow(() -> new EntityNotFoundException("Portfolio not found with id: " + portfolioId));
 
         Project project = new Project();
+        BeanUtils.copyProperties(projectDTO, project, "id", "createdAt", "updatedAt", "portfolio", "imageUrl");
+
+        // Handle image upload safely
+        MultipartFile imageFile = projectDTO.getImage();
         if (imageFile != null && !imageFile.isEmpty()) {
-            // Upload new image
-            String newImageUrl = fileService.uploadImage("portfolio-service", imageFile);
-            project.setImageUrl(newImageUrl);
+            try {
+                String newImageUrl = fileService.uploadImage("portfolio-service", imageFile);
+                project.setImageUrl(newImageUrl);
+            } catch (IOException e) {
+                throw new RuntimeException("Failed to upload project image", e);
+            }
         }
 
-        BeanUtils.copyProperties(projectDTO, project, "id", "createdAt", "updatedAt");
         project.setPortfolio(portfolio);
-        
         Project savedProject = projectRepository.save(project);
         return convertToDTO(savedProject);
     }
 
     @Override
-    public ProjectResponseDTO updateProject(UUID projectId, ProjectRequestDTO projectDTO, MultipartFile newImage) throws IOException {
+    public ProjectResponseDTO updateProject(UUID projectId, ProjectRequestDTO projectDTO) {
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new EntityNotFoundException("Project not found with id: " + projectId));
 
         // Handle new image upload
+        MultipartFile newImage = projectDTO.getImage();
         if (newImage != null && !newImage.isEmpty()) {
-            // Delete old image from S3 if exists
-            if (project.getImageUrl() != null && !project.getImageUrl().isEmpty()) {
-                fileService.deleteImage(project.getImageUrl());
+            try {
+                if (project.getImageUrl() != null && !project.getImageUrl().isEmpty()) {
+                    fileService.deleteImage(project.getImageUrl());
+                }
+                String newImageUrl = fileService.uploadImage("portfolio-service", newImage);
+                project.setImageUrl(newImageUrl);
+            } catch (IOException e) {
+                throw new RuntimeException("Failed to upload project image", e);
             }
-
-            // Upload new image
-            String newImageUrl = fileService.uploadImage("portfolio-service", newImage);
-            project.setImageUrl(newImageUrl);
-        } else {
-            // Keep old image if no new image uploaded
-            log.info( "ProjectServiceImpl :: updateProject :: no new image uploaded, retaining existing image URL");
         }
-        
+
         // Update only non-null fields
-        if (projectDTO.getTitle() != null) {
-            project.setTitle(projectDTO.getTitle());
-        }
-        if (projectDTO.getDescription() != null) {
-            project.setDescription(projectDTO.getDescription());
-        }
-        if (projectDTO.getLiveUrl() != null) {
-            project.setLiveUrl(projectDTO.getLiveUrl());
-        }
-        if(projectDTO.getRepoUrl() != null){
-            project.setRepoUrl(projectDTO.getRepoUrl());
-        }
-        if (projectDTO.getTechnologies() != null) {
-            project.setTechnologies(projectDTO.getTechnologies());
-        }
-        if (projectDTO.getStartDate() != null) {
-            project.setStartDate(projectDTO.getStartDate());
-        }
-        if (projectDTO.getEndDate() != null) {
-            project.setEndDate(projectDTO.getEndDate());
-        }
-        if (projectDTO.getOngoing() != null) {
-            project.setOngoing(projectDTO.getOngoing());
-        }
+        if (projectDTO.getTitle() != null) project.setTitle(projectDTO.getTitle());
+        if (projectDTO.getDescription() != null) project.setDescription(projectDTO.getDescription());
+        if (projectDTO.getLiveUrl() != null) project.setLiveUrl(projectDTO.getLiveUrl());
+        if (projectDTO.getRepoUrl() != null) project.setRepoUrl(projectDTO.getRepoUrl());
+        if (projectDTO.getTechnologies() != null) project.setTechnologies(projectDTO.getTechnologies());
+        if (projectDTO.getStartDate() != null) project.setStartDate(projectDTO.getStartDate());
+        if (projectDTO.getEndDate() != null) project.setEndDate(projectDTO.getEndDate());
+        if (projectDTO.getOngoing() != null) project.setOngoing(projectDTO.getOngoing());
+        if (projectDTO.getFeatures() != null) project.setFeatures(projectDTO.getFeatures());
+        if (projectDTO.getRole() != null) project.setRole(projectDTO.getRole());
+        if (projectDTO.getStatus() != null) project.setStatus(projectDTO.getStatus());
 
-        
-        Project updatedProject = projectRepository.save(project);
-        return convertToDTO(updatedProject);
+        Project updated = projectRepository.save(project);
+        return convertToDTO(updated);
     }
+
 
     @Override
     public void deleteProject(UUID projectId) {

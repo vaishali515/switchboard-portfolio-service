@@ -38,7 +38,6 @@ public class Portfolio extends AuditEntity {
     private String profileImageUrl;
 
     // Social Links as JSON
-    @Column(columnDefinition = "TEXT")
     private List<String> socialLinks;
 
     @Column(columnDefinition = "TEXT")

@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.UUID;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -12,7 +14,7 @@ import lombok.NoArgsConstructor;
 public class SkillResponseDTO {
 
     @Schema(description = "Unique identifier of the skill", example = "1")
-    private Long id;
+    private UUID id;
 
     @Schema(description = "Name of the skill", example = "Java")
     private String name;

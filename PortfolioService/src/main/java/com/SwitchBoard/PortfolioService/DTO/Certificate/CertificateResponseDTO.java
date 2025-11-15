@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.util.UUID;
 
 @Data
 @NoArgsConstructor
@@ -14,7 +15,7 @@ import java.time.LocalDate;
 public class CertificateResponseDTO {
 
     @Schema(description = "Unique identifier of the certificate", example = "1")
-    private Long id;
+    private UUID id;
 
     @Schema(description = "Title of the certificate", example = "Java Spring Boot Developer")
     private String title;

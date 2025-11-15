@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.UUID;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -12,7 +14,7 @@ import lombok.NoArgsConstructor;
 public class OverviewResponseDTO {
 
     @Schema(description = "Unique identifier of the overview", example = "1")
-    private Long id;
+    private UUID id;
 
     @Schema(description = "Brief overview or introduction of the user", example = "Highly motivated software engineer skilled in backend development.")
     private String overview;

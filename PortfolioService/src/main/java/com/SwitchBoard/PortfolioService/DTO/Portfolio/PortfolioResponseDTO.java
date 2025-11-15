@@ -29,6 +29,7 @@ public class PortfolioResponseDTO {
     @Schema(description = "URL of the profile image", example = "https://example.com/images/profile.jpg")
     private String profileImageUrl;
 
+
     @Schema(description = "List of social media links", example = "[\"https://twitter.com/johndoe\", \"https://medium.com/@johndoe\"]")
     private List<String> socialLinks;
 
