@@ -23,7 +23,7 @@ import java.util.UUID;
 @RestController
 @RequiredArgsConstructor
 @Slf4j
-@RequestMapping("/api/portfolios/{portfolioId}/education")
+@RequestMapping("/api/v1/portfolio/{portfolioId}/education")
 @Tag(name = "Education Management", description = "APIs for managing education entries in portfolios")
 public class EducationController {
 

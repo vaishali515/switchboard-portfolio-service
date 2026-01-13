@@ -25,7 +25,7 @@ import java.util.UUID;
 @RestController
 @RequiredArgsConstructor
 @Slf4j
-@RequestMapping("/api/portfolios/{portfolioId}/certificates")
+@RequestMapping("/api/v1/portfolio/{portfolioId}/certificates")
 @Tag(name = "Certificate Management", description = "APIs for managing certificates in portfolios")
 public class CertificateController {
 

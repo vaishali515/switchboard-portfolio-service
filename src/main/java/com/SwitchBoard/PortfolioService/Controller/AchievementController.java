@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/portfolios/{portfolioId}/achievements")
+@RequestMapping("/api/v1/portfolio/{portfolioId}/achievements")
 @RequiredArgsConstructor
 @Slf4j
 @Tag(name = "Achievement Management", description = "APIs for managing achievement entries in portfolios")

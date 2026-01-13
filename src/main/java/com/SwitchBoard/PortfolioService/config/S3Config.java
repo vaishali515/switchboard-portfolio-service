@@ -14,10 +14,10 @@ public class S3Config {
     @Value("${aws.region}")
     private String region;
 
-    @Value("${aws.accessKeyId}")
+    @Value("${aws.access-key}")
     private String accessKey;
 
-    @Value("${aws.secretKey}")
+    @Value("${aws.secret-key}")
     private String secretKey;
 
     @Bean

@@ -23,7 +23,7 @@ import java.util.UUID;
 @RestController
 @RequiredArgsConstructor
 @Slf4j
-@RequestMapping("/api/portfolios/{portfolioId}/projects")
+@RequestMapping("/api/v1/portfolio/{portfolioId}/projects")
 @Tag(name = "Project Management", description = "APIs for managing projects in portfolios")
 public class ProjectController {
 

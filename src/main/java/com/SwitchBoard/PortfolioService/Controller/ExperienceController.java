@@ -19,7 +19,7 @@ import java.util.UUID;
 @RestController
 @RequiredArgsConstructor
 @Slf4j
-@RequestMapping("/api/portfolios/{portfolioId}/experience")
+@RequestMapping("/api/v1/portfolio/{portfolioId}/experience")
 @Tag(name = "Experience Management", description = "APIs for managing experience entries in portfolios")
 public class ExperienceController {
 
