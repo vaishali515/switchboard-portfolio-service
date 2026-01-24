@@ -8,7 +8,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.GenericGenerator;
 
-import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.List;
 import java.util.UUID;
 
@@ -43,9 +43,11 @@ public class Project extends AuditEntity {
     @Column(name = "technology", columnDefinition = "TEXT")
     private List<String> technologies;
 
-    private LocalDate startDate;
+    @Column(columnDefinition = "VARCHAR(7)")
+    private YearMonth startDate;
 
-    private LocalDate endDate;
+    @Column(columnDefinition = "VARCHAR(7)")
+    private YearMonth endDate;
 
     private Boolean ongoing = false;
 

@@ -59,6 +59,7 @@ public class PortfolioServiceImpl implements PortfolioService {
         Portfolio portfolio = new Portfolio();
         portfolio.setEmailId(portfolioRequest.getEmailId());
         portfolio.setFullName(portfolioRequest.getFullName());
+        portfolio.setContactNumber(portfolioRequest.getContactNumber());
         portfolio.setBio(portfolioRequest.getBio());
         portfolio.setSocialLinks(portfolioRequest.getSocialLinks());
         portfolio.setOverview(portfolioRequest.getOverview());
@@ -120,6 +121,9 @@ public class PortfolioServiceImpl implements PortfolioService {
         // Update only non-null fields
         if (portfolioRequest.getFullName() != null) {
             portfolio.setFullName(portfolioRequest.getFullName());
+        }
+        if (portfolioRequest.getContactNumber() != null) {
+            portfolio.setContactNumber(portfolioRequest.getContactNumber());
         }
         if (portfolioRequest.getBio() != null) {
             portfolio.setBio(portfolioRequest.getBio());

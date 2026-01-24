@@ -8,7 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.List;
 
 @Data
@@ -24,11 +24,11 @@ public class ProjectRequestDTO {
     @Schema(description = "Brief description of the project", example = "A full-stack e-commerce platform with microservices architecture")
     private String description;
 
-    @Schema(description = "Start date of the project", example = "2024-01-01")
-    private LocalDate startDate;
+    @Schema(description = "Start date of the project (YYYY-MM format)", example = "2024-01")
+    private YearMonth startDate;
 
-    @Schema(description = "End date of the project", example = "2024-06-30")
-    private LocalDate endDate;
+    @Schema(description = "End date of the project (YYYY-MM format)", example = "2024-06")
+    private YearMonth endDate;
 
     @Schema(description = "List of technologies used in the project", example = "[\"Java\", \"Spring Boot\", \"React\", \"AWS\"]")
     private List<String> technologies;

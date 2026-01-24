@@ -8,7 +8,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.GenericGenerator;
 
-import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.UUID;
 
 @EqualsAndHashCode(callSuper = true)
@@ -33,9 +33,11 @@ public class Experience extends AuditEntity {
 
     private String location;
 
-    private LocalDate startDate;
+    @Column(columnDefinition = "VARCHAR(7)")
+    private YearMonth startDate;
 
-    private LocalDate endDate;
+    @Column(columnDefinition = "VARCHAR(7)")
+    private YearMonth endDate;
 
     @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT FALSE")
     private Boolean current = false;

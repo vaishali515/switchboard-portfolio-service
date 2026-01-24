@@ -31,6 +31,8 @@ public class Portfolio extends AuditEntity {
 
     @Column(nullable = false)
     private String fullName;
+    
+    private String contactNumber;
 
     @Column(columnDefinition = "TEXT")
     private String bio;

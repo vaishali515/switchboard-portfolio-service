@@ -8,7 +8,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.GenericGenerator;
 
-import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.UUID;
 
 @EqualsAndHashCode(callSuper = true)
@@ -35,10 +35,14 @@ public class Education extends AuditEntity {
     private String fieldOfStudy;
 
     private Double grade;
+    
+    private Double percentage;
 
-    private LocalDate startDate;
+    @Column(columnDefinition = "VARCHAR(7)")
+    private YearMonth startDate;
 
-    private LocalDate endDate;
+    @Column(columnDefinition = "VARCHAR(7)")
+    private YearMonth endDate;
 
     private Boolean ongoing = false;
 

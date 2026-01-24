@@ -92,6 +92,9 @@ public class EducationServiceImpl implements EducationService {
         if (educationDTO.getGrade() != null) {
             education.setGrade(educationDTO.getGrade());
         }
+        if (educationDTO.getPercentage() != null) {
+            education.setPercentage(educationDTO.getPercentage());
+        }
         if (educationDTO.getStartDate() != null) {
             education.setStartDate(educationDTO.getStartDate());
         }

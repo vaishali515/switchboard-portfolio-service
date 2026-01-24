@@ -7,7 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
+import java.time.YearMonth;
 
 @Data
 @NoArgsConstructor
@@ -28,12 +28,15 @@ public class EducationRequestDTO {
 
     @Schema(description = "Grade or GPA achieved", example = "9.2")
     private Double grade;
+    
+    @Schema(description = "Percentage achieved", example = "85.5")
+    private Double percentage;
 
-    @Schema(description = "Start date of the education", example = "2020-08-01")
-    private LocalDate startDate;
+    @Schema(description = "Start date of the education (YYYY-MM format)", example = "2020-08")
+    private YearMonth startDate;
 
-    @Schema(description = "End date of the education", example = "2024-05-31")
-    private LocalDate endDate;
+    @Schema(description = "End date of the education (YYYY-MM format)", example = "2024-05")
+    private YearMonth endDate;
 
     @Schema(description = "Indicates if the education is ongoing", example = "false")
     private Boolean ongoing;
