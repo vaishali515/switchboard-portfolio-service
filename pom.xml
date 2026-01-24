@@ -90,6 +90,11 @@
             <artifactId>logstash-logback-encoder</artifactId>
             <version>8.1</version>
         </dependency>
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-registry-prometheus</artifactId>
+        </dependency>
+
 
         <!-- Flyway for Database Migrations -->
         <dependency>
