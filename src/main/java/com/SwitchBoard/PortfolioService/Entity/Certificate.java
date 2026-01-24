@@ -8,7 +8,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.GenericGenerator;
 
-import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.UUID;
 
 @EqualsAndHashCode(callSuper = true)
@@ -31,9 +31,11 @@ public class Certificate extends AuditEntity {
     @Column(nullable = false)
     private String issuer;
 
-    private LocalDate issueDate;
+    @Column(columnDefinition = "VARCHAR(7)")
+    private YearMonth issueDate;
 
-    private LocalDate expiryDate;
+    @Column(columnDefinition = "VARCHAR(7)")
+    private YearMonth expiryDate;
 
     private String credentialId;
 

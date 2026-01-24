@@ -6,7 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
+import java.time.YearMonth;
 
 @Data
 @NoArgsConstructor
@@ -25,11 +25,11 @@ public class ExperienceRequestDTO {
     @Schema(description = "Location of the company or job", example = "Bangalore, India")
     private String location;
 
-    @Schema(description = "Start date of the experience", example = "2024-06-01")
-    private LocalDate startDate;
+    @Schema(description = "Start date of the experience (YYYY-MM format)", example = "2024-06")
+    private YearMonth startDate;
 
-    @Schema(description = "End date of the experience", example = "2025-06-01")
-    private LocalDate endDate;
+    @Schema(description = "End date of the experience (YYYY-MM format)", example = "2025-06")
+    private YearMonth endDate;
 
     @Schema(nullable = false, description = "Indicates if the experience is current", example = "true")
     private Boolean current;

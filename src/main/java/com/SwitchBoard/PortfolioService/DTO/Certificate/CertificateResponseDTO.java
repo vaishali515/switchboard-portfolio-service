@@ -5,7 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.UUID;
 
 @Data
@@ -23,11 +23,11 @@ public class CertificateResponseDTO {
     @Schema(description = "Organization or person issuing the certificate", example = "Oracle Academy")
     private String issuer;
 
-    @Schema(description = "Date when the certificate was issued", example = "2024-06-15")
-    private LocalDate issueDate;
+    @Schema(description = "Date when the certificate was issued (YYYY-MM format)", example = "2024-06")
+    private YearMonth issueDate;
 
-    @Schema(description = "Expiry date of the certificate, if applicable", example = "2026-06-15")
-    private LocalDate expiryDate;
+    @Schema(description = "Expiry date of the certificate, if applicable (YYYY-MM format)", example = "2026-06")
+    private YearMonth expiryDate;
 
     @Schema(description = "Credential ID of the certificate", example = "CERT123456")
     private String credentialId;

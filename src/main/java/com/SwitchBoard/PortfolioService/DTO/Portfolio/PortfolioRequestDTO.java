@@ -24,6 +24,9 @@ public class PortfolioRequestDTO {
     @Email(message = "Please provide a valid email address")
     @Schema(description = "Email address", example = "john.doe@example.com")
     private String emailId;
+    
+    @Schema(description = "Contact number", example = "+1234567890")
+    private String contactNumber;
 
     @Schema(description = "Short bio or about section", example = "Passionate backend developer with 3+ years of experience...")
     private String bio;
